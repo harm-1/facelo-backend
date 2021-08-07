@@ -13,7 +13,7 @@ from .serializers import user_schema
 blueprint = Blueprint('user', __name__)
 
 
-@blueprint.route('/users', methods=['POST'])
+@blueprint.route('/user', methods=['POST'])
 @use_kwargs(user_schema)
 @marshal_with(user_schema)
 def register_user(username, password, email, **kwargs):
@@ -26,7 +26,7 @@ def register_user(username, password, email, **kwargs):
     return user
 
 
-@blueprint.route('/users/login', methods=['POST'])
+@blueprint.route('/user/login', methods=['POST'])
 @jwt_required(optional=True)
 @use_kwargs(user_schema)
 @marshal_with(user_schema)
