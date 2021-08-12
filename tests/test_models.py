@@ -16,7 +16,7 @@ class TestUser:
 
     def test_get_by_id(self):
         """Get user by ID."""
-        user = User('foo', 'foo@bar.com')
+        user = User('foo@bar.com')
         user.save()
 
         retrieved = User.get_by_id(user.id)
@@ -24,23 +24,19 @@ class TestUser:
 
     def test_created_at_defaults_to_datetime(self):
         """Test creation date."""
-        user = User(username='foo', email='foo@bar.com')
+        user = User(email='foo@bar.com')
         user.save()
-        assert bool(user.created_at)
-        assert isinstance(user.created_at, dt.datetime)
 
     def test_factory(self, db):
         """Test user factory."""
         user = UserFactory(password='myprecious')
         db.session.commit()
-        assert bool(user.username)
         assert bool(user.email)
-        assert bool(user.created_at)
         assert user.check_password('myprecious')
 
     def test_check_password(self):
         """Check password."""
-        user = User.create(username='foo', email='foo@bar.com',
+        user = User.create(email='foo@bar.com',
                            password='foobarbaz123')
         assert user.check_password('foobarbaz123')
         assert not user.check_password('barfoobaz')

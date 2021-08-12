@@ -17,7 +17,6 @@ from facelo.exceptions import USER_ALREADY_REGISTERED
 
 def _register_user(client, **kwargs):
     return client.post(url_for("user.register_user"), json={
-        "username": "mo",
         "email": "mo@mo.mo",
         "password": "momo"
     }, **kwargs)

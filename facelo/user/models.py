@@ -10,16 +10,13 @@ from facelo.extensions import bcrypt
 class User(SurrogatePK, Model):
 
     __tablename__ = 'users'
-    username = Column(db.String(80), unique=True, nullable=False)
     email = Column(db.String(100), unique=True, nullable=False)
     password = Column(db.LargeBinary(128))
-    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
-    updated_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
     token: str = ''
 
-    def __init__(self, username, email, password=None, **kwargs):
+    def __init__(self, email, password=None, **kwargs):
         """Create instance."""
-        db.Model.__init__(self, username=username, email=email, **kwargs)
+        db.Model.__init__(self, email=email, **kwargs)
         if password:
             self.set_password(password)
         else:
@@ -35,4 +32,4 @@ class User(SurrogatePK, Model):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<User({username!r})>'.format(username=self.username)
+        return '<User({email!r})>'.format(email=self.email)
