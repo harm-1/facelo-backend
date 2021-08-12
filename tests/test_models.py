@@ -14,29 +14,32 @@ from .factories import UserFactory
 class TestUser:
     """User tests."""
 
-    def test_get_by_id(self):
+    def test_get_by_id(self, db):
         """Get user by ID."""
-        user = User('foo@bar.com')
-        user.save()
-
+        user = UserFactory()
+        db.session.commit()
         retrieved = User.get_by_id(user.id)
         assert retrieved == user
 
-    def test_created_at_defaults_to_datetime(self):
+    def test_birth_day_defaults_to_datetime(self):
         """Test creation date."""
-        user = User(email='foo@bar.com')
-        user.save()
+        user = UserFactory()
+        # assert bool(user.birth_day)
+        # assert isinstance(user.birth_day, dt.date)
 
     def test_factory(self, db):
         """Test user factory."""
         user = UserFactory(password='myprecious')
         db.session.commit()
-        assert bool(user.email)
-        assert user.check_password('myprecious')
+        assert user.id
+        assert user.email
+        # assert user.birth_day
+        # assert user.gender != None
+        # assert user.sexual_preference != None
+        assert user.password
 
     def test_check_password(self):
         """Check password."""
-        user = User.create(email='foo@bar.com',
-                           password='foobarbaz123')
+        user = UserFactory(password='foobarbaz123')
         assert user.check_password('foobarbaz123')
         assert not user.check_password('barfoobaz')
