@@ -29,12 +29,6 @@ class TestUser:
         assert bool(user.created_at)
         assert isinstance(user.created_at, dt.datetime)
 
-    def test_password_is_nullable(self):
-        """Test null password."""
-        user = User(username='foo', email='foo@bar.com')
-        user.save()
-        assert user.password is None
-
     def test_factory(self, db):
         """Test user factory."""
         user = UserFactory(password='myprecious')
