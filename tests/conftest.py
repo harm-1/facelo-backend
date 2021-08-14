@@ -47,13 +47,18 @@ def db(app):
     _db.drop_all()
 
 
+# @pytest.fixture
+# def user(db):
+#     """A user for the tests."""
+#     class User():
+#         def get(self):
+#             muser = UserFactory(password='myprecious')
+#             muser.save()
+#             db.session.commit()
+#             return muser
+#     return User()
+
 @pytest.fixture
-def user(db):
-    """A user for the tests."""
-    class User():
-        def get(self):
-            muser = UserFactory(password='myprecious')
-            muser.save()
-            db.session.commit()
-            return muser
-    return User()
+def kwargs(request):
+    marker = request.node.get_closest_marker("kwargs")
+    return marker.kwargs if marker else {}
