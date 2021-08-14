@@ -14,13 +14,10 @@ class User(SurrogatePK, Model):
     password = Column(db.LargeBinary(128))
     token: str = ''
 
-    def __init__(self, email, password=None, **kwargs):
+    def __init__(self, **kwargs):
         """Create instance."""
-        db.Model.__init__(self, email=email, **kwargs)
-        if password:
-            self.set_password(password)
-        else:
-            self.password = None
+        db.Model.__init__(self, **kwargs)
+        self.set_password(kwargs['password'])
 
     def set_password(self, password):
         """Set password."""
@@ -32,4 +29,4 @@ class User(SurrogatePK, Model):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<User({email!r})>'.format(email=self.email)
+        return '<User({username!r})>'.format(username=self.username)
