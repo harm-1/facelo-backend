@@ -10,7 +10,9 @@ from .factories import UserFactory
 
 @pytest.fixture
 def user_dict():
-    return UserFactory.stub().__dict__
+    user_dict = UserFactory.stub().__dict__
+    user_dict['birth_day'] = str(user_dict['birth_day'])
+    return user_dict
 
 @pytest.fixture
 def register_user(client, user_dict, kwargs):
