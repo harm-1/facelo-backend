@@ -32,11 +32,14 @@ def register_user(**kwargs):
 @marshal_with(user_schema)
 def login_user(email, password, **kwargs):
     user = User.query.filter_by(email=email).first()
-    if user is not None and user.check_password(password):
-        user.token = create_access_token(identity=user, fresh=True)
-        return user
-    else:
+
+    if not user:
         raise InvalidUsage.user_not_found()
+    elif not user.check_password(password):
+        raise InvalidUsage.password_incorrect()
+
+    user.token = create_access_token(identity=user, fresh=True)
+    return user
 
 
 @blueprint.route('/user', methods=['GET'])

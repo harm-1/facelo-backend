@@ -5,6 +5,7 @@ def template(data, code=500):
 
 USER_NOT_FOUND = template(['User not found'], code=404)
 USER_ALREADY_REGISTERED = template(['User already registered'], code=422)
+USER_PASSWORD_INCORRECT = template(['Password incorrect'], code=401)
 UNKNOWN_ERROR = template([], code=500)
 
 
@@ -25,6 +26,9 @@ class InvalidUsage(Exception):
     @classmethod
     def user_not_found(cls):
         return cls(**USER_NOT_FOUND)
+    @classmethod
+    def password_incorrect(cls):
+        return cls(**USER_PASSWORD_INCORRECT)
 
     @classmethod
     def user_already_registered(cls):

@@ -5,7 +5,7 @@ import datetime as dt
 import json
 
 from flask import url_for
-from facelo.exceptions import USER_ALREADY_REGISTERED
+from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASSWORD_INCORRECT
 from .factories import UserFactory
 
 @pytest.fixture
@@ -33,6 +33,24 @@ class TestAuthenticate:
         assert resp.json['email'] == user_dict['email']
         assert resp.json['token'] != 'None'
         assert resp.json['token'] != ''
+
+    def test_user_login_wrong_email(self, client, register_user):
+        resp = client.post(url_for('user.login_user'), json={
+            'email': 'incorrect@stuff.com',
+            'password': 'incorrect'
+        })
+
+        assert resp.status_code == 404
+        assert resp.json == USER_NOT_FOUND['message']
+
+    def test_user_login_wrong_password(self, client, user_dict, register_user):
+        resp = client.post(url_for('user.login_user'), json={
+            'email': user_dict['email'],
+            'password': 'incorrect'
+        })
+
+        assert resp.status_code == 401
+        assert resp.json == USER_PASSWORD_INCORRECT['message']
 
     def test_get_user(self, client, user_dict, register_user):
         token = str(register_user.json['token'])
