@@ -16,6 +16,7 @@ class User(SurrogatePK, Model):
     birth_day = Column(db.Date, nullable=False)
     gender = Column(TINYINT(unsigned=True))
     sexual_preference = Column(TINYINT(unsigned=True))
+    karma = Column(db.Integer)
     token: str = ''
 
     def __init__(self, **kwargs):

@@ -44,6 +44,7 @@ class TestUser:
         assert user.gender != None
         assert user.sexual_preference != None
         assert user.password
+        assert user.karma
 
     @pytest.mark.kwargs(password='foobarbaz123')
     def test_check_password(self, user):

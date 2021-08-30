@@ -30,6 +30,7 @@ class UserFactory(BaseFactory):
         date_end=datetime.date(2020, 1, 1))
     gender = Faker('random_int', min=0, max=2)
     sexual_preference = Faker('random_int', min=0, max=7)
+    karma = Faker('random_int', min=0, max=300)
 
     class Meta:
         """Factory configuration."""
