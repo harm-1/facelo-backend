@@ -9,7 +9,7 @@ class UserSchema(Schema):
     birth_day = fields.Date()
     gender = fields.Integer()
     sexual_preference = fields.Integer()
-    karma = field.Integer()
+    karma = fields.Integer()
     token = fields.Str(dump_only=True)
 
     # @pre_load
