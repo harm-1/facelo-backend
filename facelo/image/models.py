@@ -10,9 +10,9 @@ class Image(SurrogatePK, Model):
 
     __tablename__ = 'images'
     image_url = Column(db.String(100), nullable=False)
-    created_date = Column(db.DateTime, nullable=False)
-    upload_date = Column(db.DateTime, nullable=False)
-    age_in_foto = Column(TINYINT(unsigned=True))
+    created = Column(db.DateTime, nullable=False)
+    uploaded = Column(db.DateTime, nullable=False)
+    age_in_image = Column(TINYINT(unsigned=True))
 
     def __repr__(self):
         """Represent instance as a unique string."""

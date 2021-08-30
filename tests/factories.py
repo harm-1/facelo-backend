@@ -6,6 +6,8 @@ import datetime
 
 from facelo.database import db
 from facelo.user.models import User
+from facelo.image.models import Image
+
 
 class BaseFactory(SQLAlchemyModelFactory):
     """Base factory."""
@@ -33,3 +35,17 @@ class UserFactory(BaseFactory):
         """Factory configuration."""
 
         model = User
+
+
+class ImageFactory(BaseFactory):
+    """Image factory."""
+
+    image_url = Faker('image_url')
+    created = Faker('past_datetime')
+    uploaded = Faker('past_datetime')
+    age_in_image = Faker('random_int', min=18, max=60)
+
+    class Meta:
+        """Factory configuration."""
+
+        model = Image
