@@ -31,7 +31,7 @@ class TestUser:
         retrieved = User.get_by_id(user.id)
         assert retrieved == user
 
-    def test_birth_day_defaults_to_datetime(self, user):
+    def test_birth_day_defaults_to_date(self, user):
         """Test creation date."""
         assert bool(user.birth_day)
         assert isinstance(user.birth_day, dt.date)

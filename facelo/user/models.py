@@ -13,7 +13,7 @@ class User(SurrogatePK, Model):
     __tablename__ = 'users'
     email = Column(db.String(100), unique=True, nullable=False)
     password = Column(db.LargeBinary(128))
-    birth_day = Column(db.DateTime, nullable=False)
+    birth_day = Column(db.Date, nullable=False)
     gender = Column(TINYINT(unsigned=True))
     sexual_preference = Column(TINYINT(unsigned=True))
     token: str = ''
