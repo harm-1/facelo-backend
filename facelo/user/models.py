@@ -3,7 +3,7 @@
 """User models."""
 import datetime as dt
 
-from facelo.database import Column, Model, SurrogatePK, db
+from facelo.database import Column, Model, SurrogatePK, db, relationship
 from facelo.extensions import bcrypt
 
 from sqlalchemy.dialects.mysql import TINYINT
@@ -18,6 +18,10 @@ class User(SurrogatePK, Model):
     sexual_preference = Column(TINYINT(unsigned=True))
     karma = Column(db.Integer)
     token: str = ''
+
+    # The user has a one-to-many relationship with the image.
+    images = relationship('Image', back_populates='user')
+
 
     def __init__(self, **kwargs):
         """Create instance."""
@@ -34,4 +38,4 @@ class User(SurrogatePK, Model):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<User({username!r})>'.format(username=self.username)
+        return '<User({email!r})>'.format(email=self.email)

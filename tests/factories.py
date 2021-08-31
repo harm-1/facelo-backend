@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Factories to help in tests."""
-from factory import PostGenerationMethodCall, Faker
+from factory import PostGenerationMethodCall, Faker, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 import datetime
 
@@ -45,6 +45,8 @@ class ImageFactory(BaseFactory):
     created = Faker('past_datetime')
     uploaded = Faker('past_datetime')
     age_in_image = Faker('random_int', min=18, max=60)
+
+    user = SubFactory(UserFactory)
 
     class Meta:
         """Factory configuration."""
