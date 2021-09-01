@@ -17,8 +17,7 @@ blueprint = Blueprint('image', __name__)
 @use_kwargs(image_schema)
 @marshal_with(image_schema)
 def upload_image(**kwargs):
-    image = Image(user=current_user, **kwargs).save()
-    return image
+    return Image(user=current_user, **kwargs).save()
 
 
 @blueprint.route('/images/', methods=['GET'])
@@ -30,6 +29,6 @@ def get_images():
 
 @blueprint.route('/images/<image_id>', methods=['GET'])
 @jwt_required()
-@marshal_with(image_schemas)
+@marshal_with(image_schema)
 def get_image(image_id):
     return Image.query.filter_by(id=image_id).first()
