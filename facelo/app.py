@@ -5,7 +5,7 @@
 from flask import Flask
 from facelo.extensions import bcrypt, db, cors, migrate, jwt
 
-from facelo import commands, user
+from facelo import commands, user, image
 from facelo.settings import ProdConfig
 from facelo.exceptions import InvalidUsage
 
@@ -39,6 +39,7 @@ def register_blueprints(app):
     cors.init_app(user.views.blueprint, origins=origins)
 
     app.register_blueprint(user.views.blueprint)
+    app.register_blueprint(image.views.blueprint)
 
 def register_errorhandlers(app):
 

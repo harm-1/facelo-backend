@@ -46,7 +46,7 @@ class ImageFactory(BaseFactory):
     uploaded = Faker('past_datetime')
     age_in_image = Faker('random_int', min=18, max=60)
 
-    user = SubFactory(UserFactory)
+    # user = SubFactory(UserFactory)
 
     class Meta:
         """Factory configuration."""
