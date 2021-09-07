@@ -8,8 +8,9 @@ from facelo.database import db as _db
 from facelo.settings import TestConfig
 from facelo.user.models import User
 
+from flask_jwt_extended import create_access_token
 
-from .factories import UserFactory
+from .factories import UserFactory, ImageFactory
 
 
 @pytest.fixture(scope='function')
@@ -32,7 +33,6 @@ def app():
 def client(app):
     return app.test_client()
 
-
 @pytest.fixture(scope='function')
 def db(app):
     """A database for the tests."""
@@ -46,19 +46,32 @@ def db(app):
     _db.session.close()
     _db.drop_all()
 
-
-# @pytest.fixture
-# def user(db):
-#     """A user for the tests."""
-#     class User():
-#         def get(self):
-#             muser = UserFactory(password='myprecious')
-#             muser.save()
-#             db.session.commit()
-#             return muser
-#     return User()
-
 @pytest.fixture
 def kwargs(request):
     marker = request.node.get_closest_marker("kwargs")
     return marker.kwargs if marker else {}
+
+
+def header(token):
+    return {'Authorization': 'Bearer {}'.format(token)}
+
+@pytest.fixture
+def user_dict(kwargs):
+    return UserFactory.stub(**kwargs).__dict__
+
+@pytest.fixture
+def user(db, user_dict):
+    user = UserFactory(**user_dict).save()
+    user.token = create_access_token(identity=user)
+    yield user
+    user.delete()
+
+@pytest.fixture
+def image_dict():
+    return ImageFactory.stub().__dict__
+
+@pytest.fixture
+def image(db, user, image_dict):
+    image = ImageFactory(user=user, **image_dict).save()
+    yield image
+    image.delete()

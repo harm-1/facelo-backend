@@ -42,11 +42,9 @@ class ImageFactory(BaseFactory):
     """Image factory."""
 
     image_url = Faker('image_url')
-    created = Faker('past_datetime')
-    uploaded = Faker('past_datetime')
-    age_in_image = Faker('random_int', min=18, max=60)
+    date_taken = Faker('past_datetime')
 
-    user = SubFactory(UserFactory)
+    # user = SubFactory(UserFactory)
 
     class Meta:
         """Factory configuration."""

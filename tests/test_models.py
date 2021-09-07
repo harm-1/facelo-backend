@@ -10,17 +10,6 @@ from facelo.image.models import Image
 
 from .factories import UserFactory, ImageFactory
 
-@pytest.fixture
-def user(db, kwargs):
-    user = UserFactory(**kwargs).save()
-    yield user
-    user.delete()
-
-@pytest.fixture
-def image(db):
-    image = ImageFactory().save()
-    yield image
-    image.delete()
 
 @pytest.mark.usefixtures('db')
 class TestUser:
@@ -64,15 +53,14 @@ class TestImage:
     def test_defaults_to_datetime(self, image):
         """Test creation date."""
         assert bool(image.created)
-        assert bool(image.uploaded)
+        assert bool(image.date_taken)
         assert isinstance(image.created, dt.datetime)
-        assert isinstance(image.uploaded, dt.datetime)
+        assert isinstance(image.date_taken, dt.datetime)
 
     def test_factory(self, image):
         """Test user factory."""
         assert image.id
         assert image.image_url
         assert image.created
-        assert image.uploaded
-        assert image.age_in_image
+        assert image.date_taken
 

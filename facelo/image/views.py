@@ -32,3 +32,14 @@ def get_images():
 @marshal_with(image_schema)
 def get_image(image_id):
     return Image.query.filter_by(id=image_id).first()
+
+@blueprint.route('/images/<image_id>', methods=['PUT'])
+@jwt_required()
+@use_kwargs(image_schema)
+@marshal_with(image_schema)
+def update_image(image_id, **kwargs):
+    image = Image.query.filter_by(id=image_id).first()
+    image.update(**kwargs)
+    return image
+
+

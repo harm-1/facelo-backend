@@ -20,7 +20,7 @@ class User(SurrogatePK, Model):
     token: str = ''
 
     # The user has a one-to-many relationship with the image.
-    images = relationship('Image', back_populates='user')
+    images = relationship('Image', back_populates='user', cascade="all, delete-orphan")
 
 
     def __init__(self, **kwargs):

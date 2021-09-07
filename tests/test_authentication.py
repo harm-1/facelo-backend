@@ -8,16 +8,11 @@ from flask import url_for
 from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASSWORD_INCORRECT
 from .factories import UserFactory
 
-@pytest.fixture
-def user_dict(kwargs):
-    user_dict = UserFactory.stub(**kwargs).__dict__
-    user_dict['birth_day'] = str(user_dict['birth_day'])
-    return user_dict
 
 @pytest.fixture
 def register_user(client, user_dict):
+    user_dict['birth_day'] = str(user_dict['birth_day'])
     return client.post(url_for("user.register_user"), json=user_dict)
-
 
 @pytest.mark.usefixtures('db')
 class TestAuthenticate:
