@@ -1,11 +1,8 @@
 # coding: utf-8
 
 import pytest
-import datetime as dt
-import json
 
 from flask import url_for
-from .factories import UserFactory, ImageFactory
 from .conftest import header
 
 @pytest.fixture

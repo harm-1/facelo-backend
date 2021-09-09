@@ -10,7 +10,7 @@ from facelo.user.models import User
 
 from flask_jwt_extended import create_access_token
 
-from .factories import UserFactory, ImageFactory
+from .factories import UserFactory, ImageFactory, TrialFactory
 
 
 @pytest.fixture(scope='function')
@@ -71,7 +71,25 @@ def image_dict():
     return ImageFactory.stub().__dict__
 
 @pytest.fixture
-def image(db, user, image_dict):
+def image(user, image_dict):
     image = ImageFactory(user=user, **image_dict).save()
     yield image
     image.delete()
+
+@pytest.fixture
+def trial_kwargs(request):
+    marker = request.node.get_closest_marker("trial_kwargs")
+    return marker.kwargs if marker else {}
+
+@pytest.fixture
+def trial_dict(trial_kwargs):
+    return TrialFactory.stub(**trial_kwargs).__dict__
+
+@pytest.fixture
+def trial(image, trial_dict):
+    trial = TrialFactory(image=image, **trial_dict).save()
+    # trial = TrialFactory(**trial_dict).save()
+    yield trial
+    trial.delete()
+
+

@@ -17,6 +17,8 @@ class Image(SurrogatePK, Model):
     user_id = reference_col('users', nullable=False)
     user = relationship('User', back_populates='images')
 
+    # The image has a one-to-many relationship with the trial.
+    trials = relationship('Trial', back_populates='image', cascade="all, delete-orphan")
 
     def __repr__(self):
         """Represent instance as a unique string."""

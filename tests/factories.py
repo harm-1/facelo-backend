@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Factories to help in tests."""
-from factory import PostGenerationMethodCall, Faker, SubFactory
+from factory import PostGenerationMethodCall, Faker, SubFactory, LazyAttribute
 from factory.alchemy import SQLAlchemyModelFactory
 import datetime
 
 from facelo.database import db
 from facelo.user.models import User
 from facelo.image.models import Image
+from facelo.trial.models import Trial
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -50,3 +51,17 @@ class ImageFactory(BaseFactory):
         """Factory configuration."""
 
         model = Image
+
+class TrialFactory(BaseFactory):
+    """Image factory."""
+
+    score = Faker('pyfloat', min_value=0, max_value=1)
+    judge_age_min = Faker('random_int', min=0, max=50)
+    judge_age_max = Faker('random_int', min=51, max=100)
+
+    # user = SubFactory(UserFactory)
+
+    class Meta:
+        """Factory configuration."""
+
+        model = Trial

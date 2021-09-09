@@ -1,12 +1,10 @@
 # coding: utf-8
 
 import pytest
-import datetime as dt
 import json
 
 from flask import url_for
 from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASSWORD_INCORRECT
-from .factories import UserFactory
 
 
 @pytest.fixture

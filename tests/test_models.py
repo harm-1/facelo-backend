@@ -6,6 +6,7 @@ import pytest
 
 from facelo.user.models import User
 from facelo.image.models import Image
+from facelo.trial.models import Trial
 
 
 from .factories import UserFactory, ImageFactory
@@ -46,7 +47,6 @@ class TestUser:
 class TestImage:
 
     def test_get_by_id(self, image):
-        """Get user by ID."""
         retrieved = Image.get_by_id(image.id)
         assert retrieved == image
 
@@ -64,3 +64,15 @@ class TestImage:
         assert image.created
         assert image.date_taken
 
+
+@pytest.mark.usefixtures('db')
+class TestTrial:
+
+    def test_get_by_id(self, trial):
+        retrieved = Trial.get_by_id(trial.id)
+        assert retrieved == trial
+
+    def test_factory(self, trial):
+        assert trial.id
+        assert trial.judge_age_min
+        assert trial.judge_age_max
