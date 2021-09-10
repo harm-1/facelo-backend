@@ -6,14 +6,13 @@ import pytest
 from facelo.app import create_app
 from facelo.database import db as _db
 from facelo.settings import TestConfig
-from facelo.user.models import User
 
 from flask_jwt_extended import create_access_token
 
-from .factories import UserFactory, ImageFactory, TrialFactory
+from .factories import UserFactory, ImageFactory, TrialFactory, QuestionFactory
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def app():
     """An application for the tests."""
     _app = create_app(TestConfig)
@@ -29,11 +28,11 @@ def app():
     ctx.pop()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='session')
 def client(app):
     return app.test_client()
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope='class')
 def db(app):
     """A database for the tests."""
     _db.app = app
@@ -77,6 +76,16 @@ def image(user, image_dict):
     image.delete()
 
 @pytest.fixture
+def question_dict():
+    return QuestionFactory.stub().__dict__
+
+@pytest.fixture
+def question(question_dict):
+    question = QuestionFactory(**question_dict).save()
+    yield question
+    question.delete()
+
+@pytest.fixture
 def trial_kwargs(request):
     marker = request.node.get_closest_marker("trial_kwargs")
     return marker.kwargs if marker else {}
@@ -86,10 +95,7 @@ def trial_dict(trial_kwargs):
     return TrialFactory.stub(**trial_kwargs).__dict__
 
 @pytest.fixture
-def trial(image, trial_dict):
-    trial = TrialFactory(image=image, **trial_dict).save()
-    # trial = TrialFactory(**trial_dict).save()
+def trial(image, question, trial_dict):
+    trial = TrialFactory(image=image, question=question, **trial_dict).save()
     yield trial
     trial.delete()
-
-

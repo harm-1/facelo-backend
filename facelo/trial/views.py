@@ -6,6 +6,7 @@ from flask_jwt_extended import jwt_required, current_user
 from facelo.database import db
 from .models import Trial
 from facelo.image.models import Image
+from facelo.question.models import Question
 from .serializers import trial_schema, trial_schemas
 
 blueprint = Blueprint('trial', __name__)
@@ -25,13 +26,14 @@ def get_trial(image_id, trial_id):
     return Image.query.filter_by(id=image_id).first().query.filter_by(id=trial_id).first()
 
 
-@blueprint.route('/images/<image_id>/trials/', methods=['POST'])
+@blueprint.route('/images/<image_id>/trials/<question_id>', methods=['POST'])
 @jwt_required()
 @use_kwargs(trial_schema)
 @marshal_with(trial_schema)
-def create_trial(image_id, **kwargs):
+def create_trial(image_id, question_id, **kwargs):
     image = Image.query.filter_by(id=image_id).first()
-    return Trial(image=image, **kwargs).save()
+    question = Question.query.filter_by(id=question_id).first()
+    return Trial(image=image, question=question, **kwargs).save()
 
 
 

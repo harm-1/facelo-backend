@@ -7,9 +7,7 @@ import pytest
 from facelo.user.models import User
 from facelo.image.models import Image
 from facelo.trial.models import Trial
-
-
-from .factories import UserFactory, ImageFactory
+from facelo.question.models import Question
 
 
 @pytest.mark.usefixtures('db')
@@ -76,3 +74,24 @@ class TestTrial:
         assert trial.id
         assert trial.judge_age_min
         assert trial.judge_age_max
+
+@pytest.mark.usefixtures('db')
+class TestQuestion:
+
+    def test_get_by_id(self, question):
+        retrieved = Question.get_by_id(question.id)
+        assert retrieved == question
+
+    def test_factory(self, question):
+        assert question.id
+        assert question.question
+
+
+
+
+
+
+
+
+
+

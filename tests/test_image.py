@@ -11,7 +11,8 @@ def upload_image(client, image_dict, user):
 
     resp = client.post(url_for("image.upload_image"), json=image_dict,
                        headers=header(user.token))
-    return resp
+    yield resp
+
 
 @pytest.mark.usefixtures('db')
 class TestImage:

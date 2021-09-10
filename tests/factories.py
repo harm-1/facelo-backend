@@ -8,6 +8,7 @@ from facelo.database import db
 from facelo.user.models import User
 from facelo.image.models import Image
 from facelo.trial.models import Trial
+from facelo.question.models import Question
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -53,15 +54,23 @@ class ImageFactory(BaseFactory):
         model = Image
 
 class TrialFactory(BaseFactory):
-    """Image factory."""
+    """Trial factory."""
 
     score = Faker('pyfloat', min_value=0, max_value=1)
     judge_age_min = Faker('random_int', min=0, max=50)
     judge_age_max = Faker('random_int', min=51, max=100)
 
-    # user = SubFactory(UserFactory)
-
     class Meta:
         """Factory configuration."""
 
         model = Trial
+
+class QuestionFactory(BaseFactory):
+    """Question factory."""
+
+    question = Faker('sentence', nb_words=10)
+
+    class Meta:
+        """Factory configuration."""
+
+        model = Question
