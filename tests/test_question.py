@@ -5,6 +5,11 @@ import pytest
 from flask import url_for
 from .conftest import header
 
+from .factories import QuestionFactory
+
+@pytest.fixture
+def question_dict():
+    return QuestionFactory.stub().__dict__
 
 @pytest.mark.usefixtures('db')
 class TestQuestion:

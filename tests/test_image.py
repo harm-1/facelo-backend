@@ -5,6 +5,12 @@ import pytest
 from flask import url_for
 from .conftest import header
 
+from .factories import ImageFactory
+
+@pytest.fixture
+def image_dict():
+    return ImageFactory.stub().__dict__
+
 @pytest.fixture
 def upload_image(client, image_dict, user):
     image_dict['date_taken'] = str(image_dict['date_taken'])

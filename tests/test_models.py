@@ -8,6 +8,7 @@ from facelo.user.models import User
 from facelo.image.models import Image
 from facelo.trial.models import Trial
 from facelo.question.models import Question
+from facelo.challenge.models import Challenge
 
 
 @pytest.mark.usefixtures('db')
@@ -87,6 +88,26 @@ class TestQuestion:
         assert question.question
 
 
+@pytest.mark.usefixtures('db')
+class TestChallenge:
+
+    def test_get_by_id(self, challenge):
+        retrieved = Challenge.get_by_id(challenge.id)
+        assert retrieved == challenge
+
+    def test_factory(self, challenge):
+        assert challenge.id
+        assert challenge.judge_age
+        assert challenge.date
+        assert challenge.type != None
+        assert challenge.winner_has_revealed != None
+        assert challenge.loser_has_revealed != None
+        assert challenge.completed != None
+
+    def test_defaults_to_datetime(self, challenge):
+        """Test creation date."""
+        assert bool(challenge.date)
+        assert isinstance(challenge.date, dt.datetime)
 
 
 

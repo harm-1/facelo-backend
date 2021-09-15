@@ -9,6 +9,7 @@ from facelo.user.models import User
 from facelo.image.models import Image
 from facelo.trial.models import Trial
 from facelo.question.models import Question
+from facelo.challenge.models import Challenge
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -74,3 +75,19 @@ class QuestionFactory(BaseFactory):
         """Factory configuration."""
 
         model = Question
+
+class ChallengeFactory(BaseFactory):
+    """Challenge factory."""
+
+    judge_age = Faker('random_int', min=18, max=70)
+    date = Faker('past_datetime')
+    type = Faker('random_int', min=0, max=5)
+    winner_has_revealed = Faker('boolean')
+    loser_has_revealed = Faker('boolean')
+    completed = Faker('boolean')
+
+
+    class Meta:
+        """Factory configuration."""
+
+        model = Challenge

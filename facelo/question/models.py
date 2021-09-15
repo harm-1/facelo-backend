@@ -12,6 +12,8 @@ class Question(SurrogatePK, Model):
     # The question has an one-to-many relation with the trial
     trials = relationship('Trial', back_populates='question')
 
+    # The question has an one-to-many relation with the challenge
+    challenges = relationship('Challenge', back_populates='question')
 
     def __repr__(self):
         """Represent instance as a unique string."""

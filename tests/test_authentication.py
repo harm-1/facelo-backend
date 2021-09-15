@@ -6,6 +6,11 @@ import json
 from flask import url_for
 from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASSWORD_INCORRECT
 
+from .factories import UserFactory
+
+@pytest.fixture
+def user_dict(kwargs):
+    return UserFactory.stub(**kwargs).__dict__
 
 @pytest.fixture
 def register_user(client, user_dict):

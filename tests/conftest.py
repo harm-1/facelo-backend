@@ -9,7 +9,8 @@ from facelo.settings import TestConfig
 
 from flask_jwt_extended import create_access_token
 
-from .factories import UserFactory, ImageFactory, TrialFactory, QuestionFactory
+from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
+                        ChallengeFactory)
 
 
 @pytest.fixture(scope='session')
@@ -50,52 +51,50 @@ def kwargs(request):
     marker = request.node.get_closest_marker("kwargs")
     return marker.kwargs if marker else {}
 
-
-def header(token):
-    return {'Authorization': 'Bearer {}'.format(token)}
-
-@pytest.fixture
-def user_dict(kwargs):
-    return UserFactory.stub(**kwargs).__dict__
-
-@pytest.fixture
-def user(db, user_dict):
-    user = UserFactory(**user_dict).save()
-    user.token = create_access_token(identity=user)
-    yield user
-    user.delete()
-
-@pytest.fixture
-def image_dict():
-    return ImageFactory.stub().__dict__
-
-@pytest.fixture
-def image(user, image_dict):
-    image = ImageFactory(user=user, **image_dict).save()
-    yield image
-    image.delete()
-
-@pytest.fixture
-def question_dict():
-    return QuestionFactory.stub().__dict__
-
-@pytest.fixture
-def question(question_dict):
-    question = QuestionFactory(**question_dict).save()
-    yield question
-    question.delete()
-
 @pytest.fixture
 def trial_kwargs(request):
     marker = request.node.get_closest_marker("trial_kwargs")
     return marker.kwargs if marker else {}
 
-@pytest.fixture
-def trial_dict(trial_kwargs):
-    return TrialFactory.stub(**trial_kwargs).__dict__
+
+def header(token):
+    return {'Authorization': 'Bearer {}'.format(token)}
+
 
 @pytest.fixture
-def trial(image, question, trial_dict):
-    trial = TrialFactory(image=image, question=question, **trial_dict).save()
+def user(db, kwargs):
+    user = UserFactory(**kwargs).save()
+    user.token = create_access_token(identity=user)
+    yield user
+    user.delete()
+
+@pytest.fixture
+def image(user):
+    image = ImageFactory(user=user).save()
+    yield image
+    image.delete()
+
+@pytest.fixture
+def question():
+    question = QuestionFactory().save()
+    yield question
+    question.delete()
+
+@pytest.fixture
+def trial(image, question, trial_kwargs):
+    trial = TrialFactory(image=image, question=question, **trial_kwargs).save()
     yield trial
     trial.delete()
+
+@pytest.fixture
+def losing_trial(image, question):
+    trial = TrialFactory(image=image, question=question).save()
+    yield trial
+    trial.delete()
+
+@pytest.fixture
+def challenge(user, question, trial, losing_trial):
+    challenge = ChallengeFactory(judge=user, question=question, winner=trial,
+                                 loser=losing_trial).save()
+    yield challenge
+    challenge.delete()

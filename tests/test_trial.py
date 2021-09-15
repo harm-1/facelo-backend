@@ -5,6 +5,11 @@ import pytest
 from flask import url_for
 from .conftest import header
 
+from .factories import TrialFactory
+
+@pytest.fixture
+def trial_dict(trial_kwargs):
+    return TrialFactory.stub(**trial_kwargs).__dict__
 
 @pytest.mark.usefixtures('db')
 class TestTrial:
