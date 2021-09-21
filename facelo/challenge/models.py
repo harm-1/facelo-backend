@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """Challenge models."""
 import datetime as dt
@@ -24,16 +23,16 @@ class Challenge(SurrogatePK, Model):
 
     # The challenge has a many-to-one relationship with the judge.
     # TODO Dit wordt later een andere tabel, maar ik laat het nu zo
-    judge_id = reference_col('users')
+    judge_id = reference_col('users', nullable=True)
     judge = relationship('User')
 
     # The challenge has a many-to-one relationship with the winning trial.
-    winner_id = reference_col('trials')
+    winner_id = reference_col('trials', nullable=True)
     winner = relationship('Trial', back_populates='challenges',
                           foreign_keys=winner_id)
 
     # The challenge has a many-to-one relationship with the losing trial.
-    loser_id = reference_col('trials')
+    loser_id = reference_col('trials', nullable=True)
     loser = relationship('Trial', back_populates='challenges',
                          foreign_keys=loser_id)
 

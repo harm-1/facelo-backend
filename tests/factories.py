@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Factories to help in tests."""
-from factory import PostGenerationMethodCall, Faker, SubFactory, LazyAttribute
+from factory import PostGeneration, Faker, SubFactory, LazyAttribute
 from factory.alchemy import SQLAlchemyModelFactory
+from flask_jwt_extended import create_access_token
 import datetime
 
 from facelo.database import db
@@ -34,6 +35,9 @@ class UserFactory(BaseFactory):
     gender = Faker('random_int', min=0, max=2)
     sexual_preference = Faker('random_int', min=0, max=7)
     karma = Faker('random_int', min=0, max=300)
+    # token = PostGeneration(lambda obj, create, extracted, **kwargs: obj.create_access_token()
+    #                        if hasattr(obj, 'create_access_token') else None)
+    # token = PostGenerationMethodCall('create_access_token')
 
     class Meta:
         """Factory configuration."""

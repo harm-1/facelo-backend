@@ -7,8 +7,6 @@ from facelo.app import create_app
 from facelo.database import db as _db
 from facelo.settings import TestConfig
 
-from flask_jwt_extended import create_access_token
-
 from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
                         ChallengeFactory)
 
@@ -48,7 +46,19 @@ def db(app):
 
 @pytest.fixture
 def kwargs(request):
+    default = {
+        'deleted_user': False,
+        'deleted_image': False,
+        'deleted_trial': False,
+    }
     marker = request.node.get_closest_marker("kwargs")
+    if marker:
+        default.update(marker.kwargs)
+    return default
+
+@pytest.fixture
+def user_kwargs(request):
+    marker = request.node.get_closest_marker("user_kwargs")
     return marker.kwargs if marker else {}
 
 @pytest.fixture
@@ -62,17 +72,19 @@ def header(token):
 
 
 @pytest.fixture
-def user(db, kwargs):
-    user = UserFactory(**kwargs).save()
-    user.token = create_access_token(identity=user)
+def user(db, user_kwargs, kwargs):
+    user = UserFactory(**user_kwargs).save()
+    user.create_access_token()
     yield user
-    user.delete()
+    if not kwargs['deleted_user']:
+        user.delete()
 
 @pytest.fixture
-def image(user):
+def image(kwargs, user):
     image = ImageFactory(user=user).save()
     yield image
-    image.delete()
+    if not kwargs['deleted_trial']:
+        image.delete()
 
 @pytest.fixture
 def question():
@@ -81,10 +93,11 @@ def question():
     question.delete()
 
 @pytest.fixture
-def trial(image, question, trial_kwargs):
+def trial(kwargs, image, question, trial_kwargs):
     trial = TrialFactory(image=image, question=question, **trial_kwargs).save()
     yield trial
-    trial.delete()
+    if not kwargs['deleted_trial']:
+        trial.delete()
 
 @pytest.fixture
 def losing_trial(image, question):

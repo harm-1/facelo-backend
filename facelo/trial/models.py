@@ -6,6 +6,7 @@ from facelo.database import (Column, Model, SurrogatePK, db, relationship,
 class Trial(SurrogatePK, Model):
 
     __tablename__ = 'trials'
+
     score = Column(db.Float)
     judge_age_min = Column(db.Integer)
     judge_age_max = Column(db.Integer)

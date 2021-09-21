@@ -6,6 +6,7 @@ import datetime as dt
 from facelo.database import Column, Model, SurrogatePK, db, relationship
 from facelo.extensions import bcrypt
 
+from flask_jwt_extended import create_access_token
 from sqlalchemy.dialects.mysql import TINYINT
 
 class User(SurrogatePK, Model):
@@ -35,6 +36,9 @@ class User(SurrogatePK, Model):
     def check_password(self, value):
         """Check password."""
         return bcrypt.check_password_hash(self.password, value)
+
+    def create_access_token(self):
+        self.token = create_access_token(identity=self)
 
     def __repr__(self):
         """Represent instance as a unique string."""

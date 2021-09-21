@@ -8,9 +8,10 @@ from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASS
 
 from .factories import UserFactory
 
+# TODO https://factoryboy.readthedocs.io/en/stable/recipes.html#converting-a-factory-s-output-to-a-dict
 @pytest.fixture
-def user_dict(kwargs):
-    return UserFactory.stub(**kwargs).__dict__
+def user_dict(user_kwargs):
+    return UserFactory.stub(**user_kwargs).__dict__
 
 @pytest.fixture
 def register_user(client, user_dict):
@@ -36,7 +37,7 @@ class TestAuthenticate:
         assert resp.json['token'] != 'None'
         assert resp.json['token'] != ''
 
-    @pytest.mark.kwargs(email='foo@bar.com', password='foobar')
+    @pytest.mark.user_kwargs(email='foo@bar.com', password='foobar')
     @pytest.mark.parametrize("credentials,status_code", [
         ({'email': 'foo@bar.com', 'password': 'foobar'}, 200),
         ({'email': 'bar@foo.com', 'password': 'foobar'}, 404),

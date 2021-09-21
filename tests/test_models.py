@@ -35,11 +35,19 @@ class TestUser:
         assert user.password
         assert user.karma
 
-    @pytest.mark.kwargs(password='foobarbaz123')
+    @pytest.mark.user_kwargs(password='foobarbaz123')
     def test_check_password(self, user):
         """Check password."""
         assert user.check_password('foobarbaz123')
         assert not user.check_password('barfoobaz')
+
+    def test_relations(self, user, image):
+        assert image in user.images
+
+    @pytest.mark.kwargs(deleted_user=True, deleted_image=True, deleted_trial=True)
+    def test_delete(self, user, image):
+        user.delete()
+        assert Image.get_by_id(image.id) == None
 
 
 @pytest.mark.usefixtures('db')
@@ -63,6 +71,16 @@ class TestImage:
         assert image.created
         assert image.date_taken
 
+    def test_relations(self, user, image, trial):
+        assert image.user == user
+        assert trial in image.trials
+
+    @pytest.mark.kwargs(deleted_image=True, deleted_trial=True)
+    def test_delete(self, user, image, trial):
+        image.delete()
+        assert image not in user.images
+        assert Trial.get_by_id(trial.id) == None
+
 
 @pytest.mark.usefixtures('db')
 class TestTrial:
@@ -76,6 +94,20 @@ class TestTrial:
         assert trial.judge_age_min
         assert trial.judge_age_max
 
+    def test_relations(self, image, trial, question, challenge):
+        assert trial.image == image
+        assert trial.question == question
+        assert challenge in trial.challenges
+
+    @pytest.mark.kwargs(deleted_trial=True)
+    def test_delete(self, image, trial, challenge, question):
+        trial.delete()
+        assert trial not in image.trials
+        assert trial not in question.trials
+        assert challenge.winner != trial
+        assert challenge.loser != trial
+
+
 @pytest.mark.usefixtures('db')
 class TestQuestion:
 
@@ -86,6 +118,10 @@ class TestQuestion:
     def test_factory(self, question):
         assert question.id
         assert question.question
+
+    def test_relations(self, trial, question, challenge):
+        assert challenge in question.challenges
+        assert trial in question.trials
 
 
 @pytest.mark.usefixtures('db')
@@ -108,6 +144,12 @@ class TestChallenge:
         """Test creation date."""
         assert bool(challenge.date)
         assert isinstance(challenge.date, dt.datetime)
+
+    def test_relations(self, user, trial, losing_trial, question, challenge):
+        assert challenge.winner == trial
+        assert challenge.loser == losing_trial
+        assert challenge.question == question
+        assert challenge.judge == user
 
 
 
