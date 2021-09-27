@@ -24,7 +24,7 @@ class Challenge(SurrogatePK, Model):
     # The challenge has a many-to-one relationship with the judge.
     # TODO Dit wordt later een andere tabel, maar ik laat het nu zo
     judge_id = reference_col('users', nullable=True)
-    judge = relationship('User')
+    judge = relationship('User', back_populates='judged_challenges')
 
     # The challenge has a many-to-one relationship with the winning trial.
     winner_id = reference_col('trials', nullable=True)

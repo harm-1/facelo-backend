@@ -8,11 +8,6 @@ from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASS
 
 from .factories import UserFactory
 
-# TODO https://factoryboy.readthedocs.io/en/stable/recipes.html#converting-a-factory-s-output-to-a-dict
-@pytest.fixture
-def user_dict(user_kwargs):
-    return UserFactory.stub(**user_kwargs).__dict__
-
 @pytest.fixture
 def register_user(client, user_dict):
     user_dict['birth_day'] = str(user_dict['birth_day'])

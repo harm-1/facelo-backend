@@ -2,6 +2,7 @@
 """Defines fixtures available to all tests."""
 
 import pytest
+import factory
 
 from facelo.app import create_app
 from facelo.database import db as _db
@@ -69,6 +70,13 @@ def trial_kwargs(request):
 
 def header(token):
     return {'Authorization': 'Bearer {}'.format(token)}
+
+
+
+@pytest.fixture
+def user_dict(user_kwargs):
+    return factory.build(dict, FACTORY_CLASS=UserFactory, **user_kwargs)
+
 
 
 @pytest.fixture

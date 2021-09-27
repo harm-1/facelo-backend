@@ -12,17 +12,6 @@ class UserSchema(Schema):
     karma = fields.Integer()
     token = fields.Str(dump_only=True)
 
-    # @pre_load
-    # def make_user(self, data, **kwargs):
-    #     print('1')
-    #     print(data)
-    #     return(data)
-
-    # @post_dump
-    # def dump_user(self, data, **kwargs):
-    #     print('1')
-    #     return {'user': data}
-
 
 user_schema = UserSchema()
 user_schemas = UserSchema(many=True)

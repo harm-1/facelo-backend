@@ -23,6 +23,8 @@ class User(SurrogatePK, Model):
     # The user has a one-to-many relationship with the image.
     images = relationship('Image', back_populates='user', cascade="all, delete-orphan")
 
+    # The user has a one-to-many relationship with the challenge.
+    judged_challenges = relationship('Challenge', back_populates='judge')
 
     def __init__(self, **kwargs):
         """Create instance."""

@@ -90,7 +90,6 @@ class ChallengeFactory(BaseFactory):
     loser_has_revealed = Faker('boolean')
     completed = Faker('boolean')
 
-
     class Meta:
         """Factory configuration."""
 

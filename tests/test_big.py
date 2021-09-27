@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytest
 from random import choice
+from flask import url_for
 
+from .conftest import header
 from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
                         ChallengeFactory)
 
@@ -11,26 +13,21 @@ from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory
 # from facelo.question.models import Question
 # from facelo.challenge.models import Challenge
 
-
-
-
-
-
-
-
-
-
 @pytest.fixture
-def users(db, kwargs):
-    users = UserFactory.create_batch(size=kwargs['no_users'])
+def users(db, user, kwargs):
+    # This fixture uses the user fixture, because I pass data to that fixture. So that
+    # I have a user that I can log into
+    # I subtract 1 to compensate for the user
+    users = UserFactory.create_batch(size=kwargs['no_users']-1)
     db.session.commit()
     for user in users:
         user.create_access_token()
     db.session.commit()
-    yield users
-    # for user in users:
-    #     user.delete(commit=False)
-    # db.session.commit()
+    # I yield the user and the users in one list
+    yield [user] + users
+    for user in users:
+        user.delete(commit=False)
+    db.session.commit()
 
 @pytest.fixture
 def images(db, kwargs, users):
@@ -39,9 +36,9 @@ def images(db, kwargs, users):
         image.user = choice(users)
     db.session.commit()
     yield images
-    # for image in images:
-    #     image.delete(commit=False)
-    # db.session.commit()
+    for image in images:
+        image.delete(commit=False)
+    db.session.commit()
 
 @pytest.fixture
 def questions(db, kwargs):
@@ -66,7 +63,7 @@ def trials(db, kwargs, images, questions):
 
 @pytest.fixture
 def challenges(db, kwargs, users, trials, questions):
-    challenges = ChallengeFactory.create_batch(size=kwargs['no_challenges'])
+    challenges = ChallengeFactory.create_batch(size=kwargs['no_challenges'], completed=True)
     for challenge in challenges:
         challenge.judge = choice(users)
         challenge.question = choice(questions)
@@ -84,6 +81,15 @@ def challenges(db, kwargs, users, trials, questions):
 @pytest.mark.usefixtures('db')
 class TestBig:
     """User tests."""
+
+
+
+    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    def test_get_challenges(self, client, user, questions, challenges):
+        resp = client.get(url_for('challenge.get_challenges', question_id=questions[0].id), headers=header(user.token))
+        assert(isinstance(resp.json, list))
+
+
 
     # @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
     # def test_delete_trial(self, db, trials, challenges):
