@@ -20,45 +20,44 @@ def users(db, user, kwargs):
     # I subtract 1 to compensate for the user
     users = UserFactory.create_batch(size=kwargs['no_users']-1)
     db.session.commit()
-    for user in users:
-        user.create_access_token()
+    for new_user in users:
+        new_user.create_access_token()
     db.session.commit()
     # I yield the user and the users in one list
     yield [user] + users
-    for user in users:
-        user.delete(commit=False)
+    for new_user in users:
+        new_user.delete(commit=False)
     db.session.commit()
 
 @pytest.fixture
-def images(db, kwargs, users):
-    images = ImageFactory.create_batch(size=kwargs['no_images'])
-    for image in images:
-        image.user = choice(users)
+def images(db, image, kwargs, users):
+    images = ImageFactory.create_batch(size=kwargs['no_images']-1)
+    for new_image in images:
+        new_image.user = choice(users)
     db.session.commit()
-    yield images
-    for image in images:
-        image.delete(commit=False)
+    yield [image] + images
+    for new_image in images:
+        new_image.delete(commit=False)
     db.session.commit()
 
 @pytest.fixture
-def questions(db, kwargs):
-    questions = QuestionFactory.create_batch(size=kwargs['no_questions'])
+def questions(db, question, kwargs):
+    questions = QuestionFactory.create_batch(size=kwargs['no_questions']-1)
     db.session.commit()
-    yield questions
-    # for question in questions:
-    #     question.delete(commit=False)
-    # db.session.commit()
+    yield [question] + questions
+    # I wont remove questions ever for data consistancy
+    # So I wont remove them here
 
 @pytest.fixture
-def trials(db, kwargs, images, questions):
-    trials = TrialFactory.create_batch(size=kwargs['no_trials'])
-    for trial in trials:
-        trial.image = choice(images)
-        trial.question = choice(questions)
+def trials(db, trial, kwargs, images, questions):
+    trials = TrialFactory.create_batch(size=kwargs['no_trials']-1)
+    for new_trial in trials:
+        new_trial.image = choice(images)
+        new_trial.question = choice(questions)
     db.session.commit()
-    yield trials
-    for trial in trials:
-        trial.delete(commit=False)
+    yield [trial] + trials
+    for new_trial in trials:
+        new_trial.delete(commit=False)
     db.session.commit()
 
 @pytest.fixture
@@ -71,10 +70,8 @@ def challenges(db, kwargs, users, trials, questions):
         challenge.loser = choice(trials)
     db.session.commit()
     yield challenges
-    # for challenge in challenges:
-    #     challenge.delete(commit=False)
-    # db.session.commit()
-
+    # I wont remove challenges ever for data consistancy
+    # So I wont remove them here
 
 
 
@@ -85,7 +82,7 @@ class TestBig:
 
 
     @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
-    def test_get_challenges(self, client, user, questions, challenges):
+    def test_get_challenges(self, client, user, users, trial, questions, challenges):
         resp = client.get(url_for('challenge.get_challenges', question_id=questions[0].id), headers=header(user.token))
         assert(isinstance(resp.json, list))
 

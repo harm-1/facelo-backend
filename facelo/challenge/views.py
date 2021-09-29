@@ -8,7 +8,8 @@ from .models import Challenge
 from .serializers import challenge_schema, challenge_schemas
 
 import datetime as dt
-from random import shuffle
+from random import shuffle, choice
+from collections import Counter
 from sqlalchemy.sql.functions import random as sql_random
 
 blueprint = Blueprint('challenge', __name__)
@@ -25,16 +26,16 @@ CHALLENGE_TYPE_TRIANGLE = 3
 @jwt_required()
 @marshal_with(challenge_schemas)
 def get_challenges(question_id):
-    challenges = get_latest_challenges(62, question_id)
+    question = Question.get_by_id(question_id)
+    challenges = get_latest_challenges(question, 62)
     completed, uncompleted = sort_by_completed(challenges)
 
     # check 12 unfullfilled
     if len(uncompleted) > 12:
         return uncompleted
 
-    # to_create = generate_challenges_type(completed, uncompleted)
-    to_create = [CHALLENGE_TYPE_RANDOM] * 12
-    created = create_random_challenges(to_create, question_id)
+    to_create = generate_challenges_type(completed, uncompleted)
+    created = create_challenges(to_create, completed, question)
 
     return uncompleted + created
 
@@ -47,18 +48,11 @@ def put_challenges(**kwargs):
     return True
 
 
-def create_random_challenges(to_create, question_id):
-    # TODO maybe datetime better, but suffuces for now
-    # age = dt.date.today() - current_user.birth_day
-    age = None
-    question = Question.get_by_id(question_id)
-    challenges = []
-    for c_type in to_create:
-        (trial_1, trial_2) = Trial.query.order_by(sql_random()).limit(2).all()
-        challenges.append(Challenge(judge=current_user, judge_age=age, type=c_type, \
-                                    question=question, winner=trial_1, loser=trial_2))
-    db.session.commit()
-    return challenges
+
+def get_latest_challenges(question, size=62):
+    latest = Challenge.query.filter_by(judge=current_user, question_id=question.id) \
+                            .order_by(Challenge.id.desc()).limit(size).all()
+    return latest
 
 
 def sort_by_completed(challenges):
@@ -71,49 +65,80 @@ def sort_by_completed(challenges):
             uncompleted.append(challenge)
     return completed, uncompleted
 
-def get_latest_challenges(question_id, size=62):
-    latest = Challenge.query.filter_by(judge=current_user, question_id=question_id) \
-                            .order_by(Challenge.id.desc()).limit(size)
-    return latest
-
-
-
-
-
-
-
-
-
-
-def create_challenges(to_create):
-    age = dt.datetime.utcnow() - current_user.birth_day
-    question = Question.get_by_id(question_id)
-    for c_type in to_create:
-        if c_type == CHALLENGE_TYPE_RANDOM:
-            # get one that has few hidden votes
-
-
-            Challenge(judge=current_user, judge_age=age, type=c_type, \
-                  question=question, )
-
 
 def generate_challenges_type(completed, uncompleted):
+    to_create = []
     if len(completed) + len(uncompleted) <= 18:
-        amount = (18-len(challenges))/2
-        to_create = [CHALLENGE_TYPE_RANDOM] * amount + \
-            [CHALLENGE_TYPE_SAMETRIAL] * amount
+        # amount = (18-len(completed))/2
+        amount = ceildiv(18-len(completed), 2)
+        to_create.extend([CHALLENGE_TYPE_RANDOM] * amount + \
+                         [CHALLENGE_TYPE_SAMETRIAL] * amount)
 
     # now there should be enough starting challenges,
     # but there might not be enough unfullfilled still
     if len(uncompleted) < 6:
-        to_create = to_create + \
-            [CHALLENGE_TYPE_RANDOM] * 6 \
-            [CHALLENGE_TYPE_SAMETRIAL] * 4 \
-            [CHALLENGE_TYPE_TRIANGLE] * 2
+        to_create.extend([CHALLENGE_TYPE_RANDOM] * 6 + \
+                         [CHALLENGE_TYPE_SAMETRIAL] * 4 + \
+                         [CHALLENGE_TYPE_TRIANGLE] * 2)
     elif len(uncompleted) < 12:
-        to_create = to_create + \
-            [CHALLENGE_TYPE_RANDOM] * 3 \
-            [CHALLENGE_TYPE_SAMETRIAL] * 2 \
-            [CHALLENGE_TYPE_TRIANGLE] * 1
-    return shuffle(to_create)
+        to_create.extend([CHALLENGE_TYPE_RANDOM] * 3 + \
+                         [CHALLENGE_TYPE_SAMETRIAL] * 2 + \
+                         [CHALLENGE_TYPE_TRIANGLE] * 1)
+    shuffle(to_create)
+    return to_create
 
+
+def create_challenges(to_create, completed, question):
+    """A batch of challenges are created and saved in the db for a user"""
+
+    counter = Counter(to_create)
+
+    # creating a list of random trials, I might as well create them all simultaneously.
+    # I some cases, when a question has very few trials, it can happen that there not enough
+    # random trials. therefore it is done again.
+    random_trials = Trial.query.order_by(sql_random()).limit(len(to_create)*2).all()
+    if len(random_trials) < len(to_create) * 2:
+        random_trials.extend(Trial.query.order_by(sql_random()).limit(len(to_create)*2).all())
+
+    # creating the trials for no triangular winner checks
+    winners = []
+    losers = []
+    for challenge in completed:
+        winners.append(challenge.winner_id)
+        losers.append(challenge.loser_id)
+
+    double_same_trials = list(set(winners).intersection(losers))[:counter[CHALLENGE_TYPE_TRIANGLE]]
+    triang_trials = []
+    for trial_id in double_same_trials:
+        for challenge in completed:
+            if challenge.winner_id == trial_id:
+                loser = challenge.loser
+            elif challenge.loser_id == trial_id:
+                winner = challenge.winner
+        triang_trials.append((winner, loser))
+
+    # Now the challenges are created, it is done this way to create them in random order
+    created = []
+    for c_type in to_create:
+        if c_type == CHALLENGE_TYPE_RANDOM:
+            trial_1 = random_trials.pop(0)
+            trial_2 = random_trials.pop(0)
+        elif c_type == CHALLENGE_TYPE_SAMETRIAL:
+            trial_1 = random_trials.pop(0)
+            if choice([True, False]) == True:
+                trial2 = choice(completed).winner
+            else:
+                trial2 = choice(completed).loser
+        elif c_type == CHALLENGE_TYPE_TRIANGLE:
+            trial_1, trial_2 = triang_trials.pop(0)
+
+        created.append(Challenge(judge=current_user, judge_age=None, type=c_type, \
+                                    question=question, winner=trial_1, loser=trial_2))
+
+    db.session.commit()
+    return created
+
+
+
+def ceildiv(a, b):
+    return -(-a // b)

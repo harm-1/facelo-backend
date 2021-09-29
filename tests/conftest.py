@@ -98,7 +98,6 @@ def image(kwargs, user):
 def question():
     question = QuestionFactory().save()
     yield question
-    question.delete()
 
 @pytest.fixture
 def trial(kwargs, image, question, trial_kwargs):
@@ -118,4 +117,3 @@ def challenge(user, question, trial, losing_trial):
     challenge = ChallengeFactory(judge=user, question=question, winner=trial,
                                  loser=losing_trial).save()
     yield challenge
-    challenge.delete()

@@ -62,7 +62,7 @@ class TrialFactory(BaseFactory):
     """Trial factory."""
 
     score = Faker('pyfloat', min_value=0, max_value=1)
-    judge_age_min = Faker('random_int', min=0, max=50)
+    judge_age_min = Faker('random_int', min=1, max=50)
     judge_age_max = Faker('random_int', min=51, max=100)
 
     class Meta:
