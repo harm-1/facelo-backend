@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Challenge models."""
 import datetime as dt
+from flask_jwt_extended import get_current_user
 from facelo.database import (Column, Model, SurrogatePK, db, relationship,
                              reference_col)
 
@@ -35,5 +36,13 @@ class Challenge(SurrogatePK, Model):
     loser_id = reference_col('trials', nullable=True)
     loser = relationship('Trial', back_populates='challenges',
                          foreign_keys=loser_id)
+
+    def complete(self, results):
+        assert self.judge == get_current_user()
+        assert results['winner_id'] in [self.winner_id, self.loser_id]
+        assert results['loser_id'] in [self.winner_id, self.loser_id]
+        self.winner_id = results['winner_id']
+        self.loser_id = results['loser_id']
+        self.completed = True
 
 

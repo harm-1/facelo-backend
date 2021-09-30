@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load, pre_load
 
 
 class ChallengeSchema(Schema):
@@ -12,6 +12,11 @@ class ChallengeSchema(Schema):
 
     winner_image_url = fields.Url(dump_only=True)
     loser_image_url = fields.Url(dump_only=True)
+
+    @pre_load
+    def load(self, data, pass_many=True, **kwargs):
+        return data['challenges']
+
 
 
 challenge_schema = ChallengeSchema()

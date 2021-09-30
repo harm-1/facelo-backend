@@ -77,14 +77,28 @@ def challenges(db, kwargs, users, trials, questions):
 
 @pytest.mark.usefixtures('db')
 class TestBig:
-    """User tests."""
-
-
 
     @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
-    def test_get_challenges(self, client, user, users, trial, questions, challenges):
+    def test_get_challenges(self, client, user, trial, questions, challenges):
         resp = client.get(url_for('challenge.get_challenges', question_id=questions[0].id), headers=header(user.token))
         assert(isinstance(resp.json, list))
+
+    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    def test_put_challenges(self, client, user, trial, questions, challenges):
+        resp1 = client.get(url_for('challenge.get_challenges',
+                                   question_id=questions[0].id),
+                           headers=header(user.token))
+
+        for challenge in resp1.json:
+            del challenge['question_id']
+            if choice([True, False]) == True:
+                challenge['winner_id'] = challenge['loser_id']
+                challenge['loser_id'] = challenge['winner_id']
+
+        resp2 = client.put(url_for('challenge.put_challenges', question_id=questions[0].id),
+                           headers=header(user.token), json={'challenges':resp1.json})
+
+        assert resp2.status_code == 204
 
 
 

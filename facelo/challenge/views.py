@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from flask_apispec import use_kwargs, marshal_with
 from flask_jwt_extended import jwt_required, current_user
 
@@ -44,8 +44,12 @@ def get_challenges(question_id):
 @jwt_required()
 @use_kwargs(challenge_schemas)
 @marshal_with(challenge_schemas)
-def put_challenges(**kwargs):
-    return True
+def put_challenges(*challenges, **kwargs):
+    # breakpoint()
+    for chall_result in challenges:
+        chall_ori = Challenge.get_by_id(chall_result['id']).complete(chall_result)
+
+    return ('', 204)
 
 
 
@@ -107,6 +111,9 @@ def create_challenges(to_create, completed, question):
         winners.append(challenge.winner_id)
         losers.append(challenge.loser_id)
 
+    # TODO if a trial gets removed it will be none, does none give an error
+    # when it gets added to winners,
+    # and does none interecte with none if its in the list
     double_same_trials = list(set(winners).intersection(losers))[:counter[CHALLENGE_TYPE_TRIANGLE]]
     triang_trials = []
     for trial_id in double_same_trials:
@@ -115,25 +122,39 @@ def create_challenges(to_create, completed, question):
                 loser = challenge.loser
             elif challenge.loser_id == trial_id:
                 winner = challenge.winner
-        triang_trials.append((winner, loser))
+        # TODO do I need to check if winner is not none?
+        if (winner is not None and
+            loser is not None and
+            winner.image.user != loser.image.user):
+            triang_trials.append((winner, loser))
+
+
+    # TODO normal error checking
+    assert len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]
 
     # Now the challenges are created, it is done this way to create them in random order
     created = []
     for c_type in to_create:
-        if c_type == CHALLENGE_TYPE_RANDOM:
-            trial_1 = random_trials.pop(0)
-            trial_2 = random_trials.pop(0)
-        elif c_type == CHALLENGE_TYPE_SAMETRIAL:
-            trial_1 = random_trials.pop(0)
-            if choice([True, False]) == True:
-                trial2 = choice(completed).winner
-            else:
-                trial2 = choice(completed).loser
-        elif c_type == CHALLENGE_TYPE_TRIANGLE:
-            trial_1, trial_2 = triang_trials.pop(0)
+
+        # This loop is to ensure that the user isnt compared to itself
+        while True:
+            if c_type == CHALLENGE_TYPE_RANDOM:
+                trial_1 = random_trials.pop(0)
+                trial_2 = random_trials.pop(0)
+            elif c_type == CHALLENGE_TYPE_SAMETRIAL:
+                trial_1 = random_trials.pop(0)
+                if choice([True, False]) == True:
+                    trial_2 = choice(completed).winner
+                else:
+                    trial_2 = choice(completed).loser
+            elif c_type == CHALLENGE_TYPE_TRIANGLE:
+                trial_1, trial_2 = triang_trials.pop(0)
+
+            if trial_1.image.user != trial_2.image.user:
+                break
 
         created.append(Challenge(judge=current_user, judge_age=None, type=c_type, \
-                                    question=question, winner=trial_1, loser=trial_2))
+                                 question=question, winner=trial_1, loser=trial_2))
 
     db.session.commit()
     return created
