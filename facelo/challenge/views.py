@@ -45,7 +45,6 @@ def get_challenges(question_id):
 @use_kwargs(challenge_schemas)
 @marshal_with(challenge_schemas)
 def put_challenges(*challenges, **kwargs):
-    # breakpoint()
     for chall_result in challenges:
         chall_ori = Challenge.get_by_id(chall_result['id']).complete(chall_result)
 
@@ -114,20 +113,24 @@ def create_challenges(to_create, completed, question):
     # TODO if a trial gets removed it will be none, does none give an error
     # when it gets added to winners,
     # and does none interecte with none if its in the list
-    double_same_trials = list(set(winners).intersection(losers))[:counter[CHALLENGE_TYPE_TRIANGLE]]
+    # TODO this can be optimised, because I only a few
+    double_same_trials = list(set(winners).intersection(losers))
     triang_trials = []
     for trial_id in double_same_trials:
+        winner, loser = None, None
         for challenge in completed:
             if challenge.winner_id == trial_id:
                 loser = challenge.loser
             elif challenge.loser_id == trial_id:
                 winner = challenge.winner
-        # TODO do I need to check if winner is not none?
+
         if (winner is not None and
             loser is not None and
             winner.image.user != loser.image.user):
             triang_trials.append((winner, loser))
 
+        if len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]:
+            break
 
     # TODO normal error checking
     assert len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]
