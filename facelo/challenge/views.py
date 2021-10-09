@@ -9,6 +9,7 @@ from .serializers import challenge_schema, challenge_schemas
 
 import datetime as dt
 from random import shuffle, choice
+from itertools import combinations
 from collections import Counter
 from sqlalchemy.sql.functions import random as sql_random
 
@@ -34,8 +35,9 @@ def get_challenges(question_id):
     if len(uncompleted) > 12:
         return uncompleted
 
-    to_create = generate_challenges_type(completed, uncompleted)
-    created = create_challenges(to_create, completed, question)
+    to_create = generate_challenges_type(uncompleted)
+    generated = generate_challenges(to_create, completed)
+    created = create_challenges(generated, question)
 
     return uncompleted + created
 
@@ -69,53 +71,99 @@ def sort_by_completed(challenges):
     return completed, uncompleted
 
 
-def generate_challenges_type(completed, uncompleted):
-    to_create = []
-    if len(completed) + len(uncompleted) <= 18:
-        # amount = (18-len(completed))/2
-        amount = ceildiv(18-len(completed), 2)
-        to_create.extend([CHALLENGE_TYPE_RANDOM] * amount + \
-                         [CHALLENGE_TYPE_SAMETRIAL] * amount)
-
-    # now there should be enough starting challenges,
-    # but there might not be enough unfullfilled still
+def generate_challenges_type(uncompleted):
+    to_create = {}
     if len(uncompleted) < 6:
-        to_create.extend([CHALLENGE_TYPE_RANDOM] * 6 + \
-                         [CHALLENGE_TYPE_SAMETRIAL] * 4 + \
-                         [CHALLENGE_TYPE_TRIANGLE] * 2)
+        to_create = {CHALLENGE_TYPE_RANDOM: 6,
+                     CHALLENGE_TYPE_SAMETRIAL: 4,
+                     CHALLENGE_TYPE_TRIANGLE: 2}
     elif len(uncompleted) < 12:
-        to_create.extend([CHALLENGE_TYPE_RANDOM] * 3 + \
-                         [CHALLENGE_TYPE_SAMETRIAL] * 2 + \
-                         [CHALLENGE_TYPE_TRIANGLE] * 1)
-    shuffle(to_create)
+        to_create = {CHALLENGE_TYPE_RANDOM: 3,
+                     CHALLENGE_TYPE_SAMETRIAL: 2,
+                     CHALLENGE_TYPE_TRIANGLE: 1}
     return to_create
 
+def generate_challenges(to_create, completed):
+    # I need to check that I dont send the same ones everytime
+    # I think I only dont want to send the same ones in the newly created with respect to the last 50.
+    generated_random = generate_random(size=to_create[CHALLENGE_TYPE_RANDOM])
+    generated_sametrial = generate_sametrial(to_create[CHALLENGE_TYPE_SAMETRIAL], completed)
+    generated_triangle= generate_triangle(to_create[CHALLENGE_TYPE_TRIANGLE], completed)
+    generated = generated_random + generated_sametrial + generated_triangle
 
-def create_challenges(to_create, completed, question):
-    """A batch of challenges are created and saved in the db for a user"""
+    # TODO test
+    # TODO this can be improved
+    for combo in combinations(generated, 2):
+        if (combo[0]['trial_1'] == combo[1]['trial_1'] and
+            combo[0]['trial_2'] == combo[1]['trial_2']) or \
+            (combo[0]['trial_1'] == combo[1]['trial_2'] and
+             combo[0]['trial_2'] == combo[1]['trial_1']):
+            if combo[0] in generated:
+                generated.remove(combo[0])
+            else:
+                generated.remove(combo[1])
 
-    counter = Counter(to_create)
+    # now checking that they are not the same as completed challs
+    # TODO test this
+    for chall in completed:
+        generated[:] = [
+            gen_sample for gen_sample in generated if not (
+                (gen_sample['trial_1'] == chall.winner_id and
+                 gen_sample['trial_2'] == chall.loser_id) or
+                (gen_sample['trial_1'] == chall.loser_id and
+                 gen_sample['trial_2'] == chall.winner_id))
+        ]
+    shuffle(generated)
+    return generated
 
-    # creating a list of random trials, I might as well create them all simultaneously.
-    # I some cases, when a question has very few trials, it can happen that there not enough
-    # random trials. therefore it is done again.
-    random_trials = Trial.query.order_by(sql_random()).limit(len(to_create)*2).all()
-    if len(random_trials) < len(to_create) * 2:
-        random_trials.extend(Trial.query.order_by(sql_random()).limit(len(to_create)*2).all())
+def generate_random(size):
+    # TODO this should actually be in the app context and then a yield functios
+    # for now, lets just make it work.
+    random_trials = Trial.query.order_by(sql_random()).limit(size*2).all()
+    while len(random_trials) < size*3:
+        random_trials.extend(Trial.query.order_by(sql_random()).all())
 
+    generated = []
+    while len(generated) < size:
+        trial_1 = random_trials.pop(0)
+        trial_2 = random_trials.pop(0)
+        if trial_1.image.user != trial_2.image.user:
+            generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': trial_1, 'trial_2': trial_2})
+    return(generated)
+
+def generate_sametrial(size, completed):
+    random_trials = Trial.query.order_by(sql_random()).limit(size).all()
+    while len(random_trials) < size*2:
+        random_trials.extend(Trial.query.order_by(sql_random()).all())
+
+    same_trials = [chall.winner for chall in completed if chall.winner] + \
+        [chall.loser for chall in completed if chall.loser]
+
+    generated = []
+    while len(generated) < size:
+        trial_1 = random_trials.pop(0)
+        trial_2 = choice(same_trials)
+        if trial_1.image.user != trial_2.image.user:
+            generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': trial_1, 'trial_2': trial_2})
+    return(generated)
+
+
+def generate_triangle(size, completed):
     # creating the trials for no triangular winner checks
+    # This functio will generate less triangular checks when they are not available.
+    # Which is probably what I want. 
     winners = []
     losers = []
     for challenge in completed:
-        winners.append(challenge.winner_id)
-        losers.append(challenge.loser_id)
+        if challenge.winner_id != None and \
+           challenge.loser_id != None:
+            winners.append(challenge.winner_id)
+            losers.append(challenge.loser_id)
 
-    # TODO if a trial gets removed it will be none, does none give an error
-    # when it gets added to winners,
-    # and does none interecte with none if its in the list
-    # TODO this can be optimised, because I only a few
+    # TODO this can be optimised, because I need only a few
+    # I can probably make some yield function. 
     double_same_trials = list(set(winners).intersection(losers))
-    triang_trials = []
+    generated = []
     for trial_id in double_same_trials:
         winner, loser = None, None
         for challenge in completed:
@@ -124,45 +172,133 @@ def create_challenges(to_create, completed, question):
             elif challenge.loser_id == trial_id:
                 winner = challenge.winner
 
-        if (winner is not None and
-            loser is not None and
-            winner.image.user != loser.image.user):
-            triang_trials.append((winner, loser))
+        if winner.image.user != loser.image.user:
+            if choice([True, False]):
+                generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': winner, 'trial_2': loser})
+            else:
+                generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': loser, 'trial_2': winner})
 
-        if len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]:
+
+        if len(generated) == size:
             break
+    return generated
 
-    # TODO normal error checking
-    assert len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]
-
+def create_challenges(generated, question):
     # Now the challenges are created, it is done this way to create them in random order
     created = []
-    for c_type in to_create:
-
-        # This loop is to ensure that the user isnt compared to itself
-        while True:
-            if c_type == CHALLENGE_TYPE_RANDOM:
-                trial_1 = random_trials.pop(0)
-                trial_2 = random_trials.pop(0)
-            elif c_type == CHALLENGE_TYPE_SAMETRIAL:
-                trial_1 = random_trials.pop(0)
-                if choice([True, False]) == True:
-                    trial_2 = choice(completed).winner
-                else:
-                    trial_2 = choice(completed).loser
-            elif c_type == CHALLENGE_TYPE_TRIANGLE:
-                trial_1, trial_2 = triang_trials.pop(0)
-
-            if trial_1.image.user != trial_2.image.user:
-                break
-
-        created.append(Challenge(judge=current_user, judge_age=None, type=c_type, \
-                                 question=question, winner=trial_1, loser=trial_2))
-
+    for gen_sample in generated:
+        created.append(Challenge(judge=current_user, judge_age=None, type=gen_sample['type'], \
+                                 question=question, winner=gen_sample['trial_1'],
+                                 loser=gen_sample['trial_2']))
     db.session.commit()
     return created
 
 
 
-def ceildiv(a, b):
-    return -(-a // b)
+
+# # Old shit here
+# def generate_challenges_type(completed, uncompleted):
+#     to_create = []
+#     if len(completed) + len(uncompleted) <= 18:
+#         # amount = (18-len(completed))/2
+#         amount = ceildiv(18-len(completed), 2)
+#         to_create.extend([CHALLENGE_TYPE_RANDOM] * amount + \
+#                          [CHALLENGE_TYPE_SAMETRIAL] * amount)
+
+#     # now there should be enough starting challenges,
+#     # but there might not be enough unfullfilled still
+#     if len(uncompleted) < 6:
+#         to_create.extend([CHALLENGE_TYPE_RANDOM] * 6 + \
+#                          [CHALLENGE_TYPE_SAMETRIAL] * 4 + \
+#                          [CHALLENGE_TYPE_TRIANGLE] * 2)
+#     elif len(uncompleted) < 12:
+#         to_create.extend([CHALLENGE_TYPE_RANDOM] * 3 + \
+#                          [CHALLENGE_TYPE_SAMETRIAL] * 2 + \
+#                          [CHALLENGE_TYPE_TRIANGLE] * 1)
+#     shuffle(to_create)
+#     return to_create
+
+# def create_challenges(to_create, completed, question):
+#     """A batch of challenges are created and saved in the db for a user"""
+
+#     counter = Counter(to_create)
+
+#     # creating the trials for no triangular winner checks
+#     winners = []
+#     losers = []
+#     for challenge in completed:
+#         if challenge.winner_id != None:
+#             winners.append(challenge.winner_id)
+#         if challenge.loser_id != None:
+#             losers.append(challenge.loser_id)
+
+#     # TODO this can be optimised, because I need only a few
+#     # I can probably make some yield function. 
+#     double_same_trials = list(set(winners).intersection(losers))
+#     triang_trials = []
+#     for trial_id in double_same_trials:
+#         winner, loser = None, None
+#         for challenge in completed:
+#             if challenge.winner_id == trial_id:
+#                 loser = challenge.loser
+#             elif challenge.loser_id == trial_id:
+#                 winner = challenge.winner
+
+#         if (winner is not None and
+#             loser is not None and
+#             winner.image.user != loser.image.user):
+#             triang_trials.append((winner, loser))
+
+#         if len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]:
+#             break
+
+#     # TODO normal error checking
+#     # assert len(triang_trials) == counter[CHALLENGE_TYPE_TRIANGLE]
+
+#     # creating a list of random trials, I might as well create them all simultaneously.
+#     # I some cases, when a question has very few trials, it can happen that there not enough
+#     # random trials. therefore it is done again.
+#     random_trials = Trial.query.order_by(sql_random()).limit(len(to_create)*2).all()
+#     while len(random_trials) < len(to_create)*2:
+#         random_trials.extend(Trial.query.order_by(sql_random()).all())
+
+#     # Now the challenges are created, it is done this way to create them in random order
+#     created = []
+#     for c_type in to_create:
+
+#         # This loop is to ensure that the user isnt compared to itself
+#         # TODO this is not a good solution, this can cause an unfinite loop
+#         while True:
+
+#             if c_type == CHALLENGE_TYPE_RANDOM:
+#                 trial_1 = random_trials.pop(0)
+#                 trial_2 = random_trials.pop(0)
+
+#             elif c_type == CHALLENGE_TYPE_SAMETRIAL:
+#                 trial_1 = random_trials.pop(0)
+#                 trial_2 = None
+#                 if choice([True, False]):
+#                     while not trial_2:
+#                         trial_2 = choice(completed).winner
+#                 else:
+#                     while not trial_2:
+#                         trial_2 = choice(completed).loser
+
+#             elif c_type == CHALLENGE_TYPE_TRIANGLE:
+#                 if not len(triang_trials):
+#                     continue
+#                 trial_1, trial_2 = triang_trials.pop(0)
+
+#             if trial_1.image.user != trial_2.image.user:
+#                 break
+
+#         created.append(Challenge(judge=current_user, judge_age=None, type=c_type, \
+#                                  question=question, winner=trial_1, loser=trial_2))
+
+#     db.session.commit()
+#     return created
+
+
+
+# def ceildiv(a, b):
+#     return -(-a // b)

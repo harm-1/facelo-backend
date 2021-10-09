@@ -129,4 +129,4 @@ class TestBig:
                                   question_id=question.id),
                           headers=header(user.token))
 
-        assert(isinstance(get_challenges.json, list))
+        assert(isinstance(resp.json, list))

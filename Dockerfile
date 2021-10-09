@@ -6,6 +6,7 @@ FROM python:${PYTHON_IMAGE_VERSION} AS builder
 RUN apt-get update && apt-get install -y \
   default-libmysqlclient-dev \
   gcc \
+  libffi-dev \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
