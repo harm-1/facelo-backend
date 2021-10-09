@@ -68,6 +68,9 @@ def challenges(db, kwargs, users, trials, questions):
         challenge.question = choice(questions)
         challenge.winner = choice(trials)
         challenge.loser = choice(trials)
+        while challenge.loser == challenge.winner:
+            challenge.loser = choice(trials)
+
     db.session.commit()
     yield challenges
     # I wont remove challenges ever for data consistancy
@@ -118,11 +121,44 @@ class TestBig:
         assert resp2.status_code == 204
 
 
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
     @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
     def test_delete_trial(self, db, client, trials, challenges, question, user):
         # Choose 10 trials and delete those
         for trial in sample(trials, 10):
             trial.delete(commit=False)
+        db.session.commit()
+
+        resp = client.get(url_for('challenge.get_challenges',
+                                  question_id=question.id),
+                          headers=header(user.token))
+
+        assert(isinstance(resp.json, list))
+
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
+    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    def test_delete_image(self, db, client, images, challenges, question, user):
+        # Choose 10 trials and delete those
+        for image in sample(images, 10):
+            image.delete(commit=False)
+        db.session.commit()
+
+        resp = client.get(url_for('challenge.get_challenges',
+                                  question_id=question.id),
+                          headers=header(user.token))
+
+        assert(isinstance(resp.json, list))
+
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
+    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    def test_delete_user(self, db, client, users, challenges, question, user):
+        # Choose 10 trials and delete those
+        for user_sample in sample(users, 5):
+            if user_sample != user:
+                user_sample.delete(commit=False)
         db.session.commit()
 
         resp = client.get(url_for('challenge.get_challenges',

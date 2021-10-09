@@ -47,15 +47,8 @@ def db(app):
 
 @pytest.fixture
 def kwargs(request):
-    default = {
-        'deleted_user': False,
-        'deleted_image': False,
-        'deleted_trial': False,
-    }
     marker = request.node.get_closest_marker("kwargs")
-    if marker:
-        default.update(marker.kwargs)
-    return default
+    return marker.kwargs if marker else {}
 
 @pytest.fixture
 def user_kwargs(request):
@@ -80,19 +73,17 @@ def user_dict(user_kwargs):
 
 
 @pytest.fixture
-def user(db, user_kwargs, kwargs):
+def user(db, user_kwargs):
     user = UserFactory(**user_kwargs).save()
     user.create_access_token()
     yield user
-    if not kwargs['deleted_user']:
-        user.delete()
+    user.delete()
 
 @pytest.fixture
-def image(kwargs, user):
+def image(user):
     image = ImageFactory(user=user).save()
     yield image
-    if not kwargs['deleted_trial']:
-        image.delete()
+    image.delete()
 
 @pytest.fixture
 def question():
@@ -100,11 +91,10 @@ def question():
     yield question
 
 @pytest.fixture
-def trial(kwargs, image, question, trial_kwargs):
+def trial(image, question, trial_kwargs):
     trial = TrialFactory(image=image, question=question, **trial_kwargs).save()
     yield trial
-    if not kwargs['deleted_trial']:
-        trial.delete()
+    trial.delete()
 
 @pytest.fixture
 def losing_trial(image, question):
