@@ -32,8 +32,9 @@ class TestAuthenticate:
         assert resp.json['token'] != 'None'
         assert resp.json['token'] != ''
 
-    @pytest.mark.user_kwargs(email='foo@bar.com', password='foobar')
-    @pytest.mark.parametrize("credentials,status_code", [
+    @pytest.mark.parametrize("user_dict", [{'email': 'foo@bar.com', 'password': 'foobar'}],
+                             indirect=True)
+    @pytest.mark.parametrize("credentials, status_code", [
         ({'email': 'foo@bar.com', 'password': 'foobar'}, 200),
         ({'email': 'bar@foo.com', 'password': 'foobar'}, 404),
         ({'email': 'foo@bar.com', 'password': 'barfoo'}, 401),])

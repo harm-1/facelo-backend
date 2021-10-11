@@ -35,8 +35,8 @@ class TestUser:
         assert user.password
         assert user.karma
 
-    @pytest.mark.user_kwargs(password='foobarbaz123')
-    def test_check_password(self, user):
+    @pytest.mark.parametrize("user_dict", [{'password': 'foobarbaz123'}], indirect=True)
+    def test_check_password(self, user_dict, user):
         """Check password."""
         assert user.check_password('foobarbaz123')
         assert not user.check_password('barfoobaz')

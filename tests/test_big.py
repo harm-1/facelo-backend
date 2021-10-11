@@ -7,18 +7,13 @@ from .conftest import header
 from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
                         ChallengeFactory)
 
-# from facelo.user.models import User
-# from facelo.image.models import Image
-# from facelo.trial.models import Trial
-# from facelo.question.models import Question
-# from facelo.challenge.models import Challenge
-
 @pytest.fixture
-def users(db, user, kwargs):
+def users(db, user, request):
     # This fixture uses the user fixture, because I pass data to that fixture. So that
     # I have a user that I can log into
     # I subtract 1 to compensate for the user
-    users = UserFactory.create_batch(size=kwargs['no_users']-1)
+    size = request.param if hasattr(request, 'param') else 10
+    users = UserFactory.create_batch(size=size-1)
     db.session.commit()
     for new_user in users:
         new_user.create_access_token()
@@ -30,8 +25,9 @@ def users(db, user, kwargs):
     db.session.commit()
 
 @pytest.fixture
-def images(db, image, kwargs, users):
-    images = ImageFactory.create_batch(size=kwargs['no_images']-1)
+def images(db, image, request, users):
+    size = request.param if hasattr(request, 'param') else 20
+    images = ImageFactory.create_batch(size=size-1)
     for new_image in images:
         new_image.user = choice(users)
     db.session.commit()
@@ -41,16 +37,18 @@ def images(db, image, kwargs, users):
     db.session.commit()
 
 @pytest.fixture
-def questions(db, question, kwargs):
-    questions = QuestionFactory.create_batch(size=kwargs['no_questions']-1)
+def questions(db, question, request):
+    size = request.param if hasattr(request, 'param') else 1
+    questions = QuestionFactory.create_batch(size=size-1)
     db.session.commit()
     yield [question] + questions
     # I wont remove questions ever for data consistancy
     # So I wont remove them here
 
 @pytest.fixture
-def trials(db, trial, kwargs, images, questions):
-    trials = TrialFactory.create_batch(size=kwargs['no_trials']-1)
+def trials(db, trial, request, images, questions):
+    size = request.param if hasattr(request, 'param') else 20
+    trials = TrialFactory.create_batch(size=size-1)
     for new_trial in trials:
         new_trial.image = choice(images)
         new_trial.question = choice(questions)
@@ -61,8 +59,9 @@ def trials(db, trial, kwargs, images, questions):
     db.session.commit()
 
 @pytest.fixture
-def challenges(db, kwargs, users, trials, questions):
-    challenges = ChallengeFactory.create_batch(size=kwargs['no_challenges'], completed=True)
+def challenges(db, request, users, trials, questions):
+    size = request.param if hasattr(request, 'param') else 300
+    challenges = ChallengeFactory.create_batch(size=size, completed=True)
     for challenge in challenges:
         challenge.judge = choice(users)
         challenge.question = choice(questions)
@@ -76,6 +75,10 @@ def challenges(db, kwargs, users, trials, questions):
     # I wont remove challenges ever for data consistancy
     # So I wont remove them here
 
+
+
+
+
 @pytest.fixture
 def get_challenges(client, question, user):
     resp = client.get(url_for('challenge.get_challenges',
@@ -86,28 +89,27 @@ def get_challenges(client, question, user):
 """
     Ik moet meer tests hebben, en ik moet er ff over denken wat voor tests ik nodig heb.
 
-    - Ik denk dat ik trials moet verwijderen
-    - Waarschijnlijk image en user ook, ik check bij het maken van challenges of de twee trials
-      niet dezelfde user hebben.
     - Ik moet testen voor het geval dat er weinig trials zijn.
       Voor elke hoeveel onder een bepaalde waarde waarschijnlijk. Ik moet checken of er wel goede
       challenges gemaakt worden voor het geval er kleine hoeveelheden trials beschibaar zijn.
     - Ik moet testen of er dan niet dezelfde challenges worden gemaakt.
     - Ik denk dat ik helemaal niet dezelfde challenges wil (in korte tijd)
       Dus ik moet daar een check voor maken bij het creeren.
+      Maar dat doe ik misschien wel als ik tests met weinig trials maak. 
+
 """
+
 
 
 @pytest.mark.usefixtures('db')
 class TestBig:
 
-    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
     def test_get_challenges(self, challenges, get_challenges):
         assert(isinstance(get_challenges.json, list))
 
-    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
-    def test_put_challenges(self, client, user, trial, questions, challenges, get_challenges):
-
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    def test_put_challenges(self, client, user, questions, challenges, get_challenges):
         resp1 = get_challenges
         for challenge in resp1.json:
             del challenge['question_id']
@@ -122,7 +124,7 @@ class TestBig:
 
 
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
     def test_delete_trial(self, db, client, trials, challenges, question, user):
         # Choose 10 trials and delete those
         for trial in sample(trials, 10):
@@ -137,7 +139,7 @@ class TestBig:
 
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
-    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
     def test_delete_image(self, db, client, images, challenges, question, user):
         # Choose 10 trials and delete those
         for image in sample(images, 10):
@@ -153,7 +155,7 @@ class TestBig:
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
-    @pytest.mark.kwargs(no_users=10, no_images=20, no_trials=20, no_questions=1, no_challenges=300)
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
     def test_delete_user(self, db, client, users, challenges, question, user):
         # Choose 10 trials and delete those
         for user_sample in sample(users, 5):
@@ -166,3 +168,11 @@ class TestBig:
                           headers=header(user.token))
 
         assert(isinstance(resp.json, list))
+
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(1, 1, 1, 1, 0)], indirect=True)
+    def test_few_trials(self, client, challenges, user, question):
+        resp = client.get(url_for('challenge.get_challenges',
+                                  question_id=question.id),
+                          headers=header(user.token))
+
+        assert(resp.json == [])

@@ -12,6 +12,9 @@ from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory
                         ChallengeFactory)
 
 
+def header(token):
+    return {'Authorization': 'Bearer {}'.format(token)}
+
 @pytest.fixture(scope='session')
 def app():
     """An application for the tests."""
@@ -26,7 +29,6 @@ def app():
     yield _app
 
     ctx.pop()
-
 
 @pytest.fixture(scope='session')
 def client(app):
@@ -46,35 +48,14 @@ def db(app):
     _db.drop_all()
 
 @pytest.fixture
-def kwargs(request):
-    marker = request.node.get_closest_marker("kwargs")
-    return marker.kwargs if marker else {}
+def user_dict(request):
+    if hasattr(request, 'param'):
+        return factory.build(dict, FACTORY_CLASS=UserFactory, **request.param)
+    return factory.build(dict, FACTORY_CLASS=UserFactory)
 
 @pytest.fixture
-def user_kwargs(request):
-    marker = request.node.get_closest_marker("user_kwargs")
-    return marker.kwargs if marker else {}
-
-@pytest.fixture
-def trial_kwargs(request):
-    marker = request.node.get_closest_marker("trial_kwargs")
-    return marker.kwargs if marker else {}
-
-
-def header(token):
-    return {'Authorization': 'Bearer {}'.format(token)}
-
-
-
-@pytest.fixture
-def user_dict(user_kwargs):
-    return factory.build(dict, FACTORY_CLASS=UserFactory, **user_kwargs)
-
-
-
-@pytest.fixture
-def user(db, user_kwargs):
-    user = UserFactory(**user_kwargs).save()
+def user(db, user_dict):
+    user = UserFactory(**user_dict).save()
     user.create_access_token()
     yield user
     user.delete()
@@ -91,8 +72,8 @@ def question():
     yield question
 
 @pytest.fixture
-def trial(image, question, trial_kwargs):
-    trial = TrialFactory(image=image, question=question, **trial_kwargs).save()
+def trial(image, question):
+    trial = TrialFactory(image=image, question=question).save()
     yield trial
     trial.delete()
 

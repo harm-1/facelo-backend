@@ -98,10 +98,9 @@ def generate_challenges(to_create, completed):
             combo[0]['trial_2'] == combo[1]['trial_2']) or \
             (combo[0]['trial_1'] == combo[1]['trial_2'] and
              combo[0]['trial_2'] == combo[1]['trial_1']):
+            # Maximum 1 of the combo needs to remain, this is not straightforward.
             if combo[0] in generated:
                 generated.remove(combo[0])
-            else:
-                generated.remove(combo[1])
 
     # now checking that they are not the same as completed challs
     # TODO test this
@@ -119,6 +118,9 @@ def generate_challenges(to_create, completed):
 def generate_random(size):
     # TODO this should actually be in the app context and then a yield functios
     # for now, lets just make it work.
+    if len(Trial.query.all()) < 2:
+        return []
+
     random_trials = Trial.query.order_by(sql_random()).limit(size*3).all()
     while len(random_trials) < size*3:
         random_trials.extend(Trial.query.order_by(sql_random()).all())
@@ -132,6 +134,11 @@ def generate_random(size):
     return(generated)
 
 def generate_sametrial(size, completed):
+
+
+    if len(Trial.query.all()) < 2 or len(completed) == 0:
+        return []
+
     random_trials = Trial.query.order_by(sql_random()).limit(size).all()
     while len(random_trials) < size*2:
         random_trials.extend(Trial.query.order_by(sql_random()).all())
