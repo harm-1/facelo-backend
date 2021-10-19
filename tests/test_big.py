@@ -14,10 +14,6 @@ def users(db, user, request):
     # I subtract 1 to compensate for the user
     size = request.param if hasattr(request, 'param') else 10
     users = UserFactory.create_batch(size=size-1)
-    db.session.commit()
-    for new_user in users:
-        new_user.create_access_token()
-    db.session.commit()
     # I yield the user and the users in one list
     yield [user] + users
     for new_user in users:
@@ -28,9 +24,6 @@ def users(db, user, request):
 def images(db, image, request, users):
     size = request.param if hasattr(request, 'param') else 20
     images = ImageFactory.create_batch(size=size-1)
-    for new_image in images:
-        new_image.user = choice(users)
-    db.session.commit()
     yield [image] + images
     for new_image in images:
         new_image.delete(commit=False)
@@ -40,7 +33,6 @@ def images(db, image, request, users):
 def questions(db, question, request):
     size = request.param if hasattr(request, 'param') else 1
     questions = QuestionFactory.create_batch(size=size-1)
-    db.session.commit()
     yield [question] + questions
     # I wont remove questions ever for data consistancy
     # So I wont remove them here
@@ -49,10 +41,6 @@ def questions(db, question, request):
 def trials(db, trial, request, images, questions):
     size = request.param if hasattr(request, 'param') else 20
     trials = TrialFactory.create_batch(size=size-1)
-    for new_trial in trials:
-        new_trial.image = choice(images)
-        new_trial.question = choice(questions)
-    db.session.commit()
     yield [trial] + trials
     for new_trial in trials:
         new_trial.delete(commit=False)
@@ -62,21 +50,9 @@ def trials(db, trial, request, images, questions):
 def challenges(db, request, users, trials, questions):
     size = request.param if hasattr(request, 'param') else 300
     challenges = ChallengeFactory.create_batch(size=size, completed=True)
-    for challenge in challenges:
-        challenge.judge = choice(users)
-        challenge.question = choice(questions)
-        challenge.winner = choice(trials)
-        challenge.loser = choice(trials)
-        while challenge.loser == challenge.winner:
-            challenge.loser = choice(trials)
-
-    db.session.commit()
     yield challenges
     # I wont remove challenges ever for data consistancy
     # So I wont remove them here
-
-
-
 
 
 @pytest.fixture
@@ -93,9 +69,12 @@ def get_challenges(client, question, user):
       Voor elke hoeveel onder een bepaalde waarde waarschijnlijk. Ik moet checken of er wel goede
       challenges gemaakt worden voor het geval er kleine hoeveelheden trials beschibaar zijn.
     - Ik moet testen of er dan niet dezelfde challenges worden gemaakt.
+      Maar misschien kan ik dan beter de functies zelf testen
     - Ik denk dat ik helemaal niet dezelfde challenges wil (in korte tijd)
       Dus ik moet daar een check voor maken bij het creeren.
-      Maar dat doe ik misschien wel als ik tests met weinig trials maak. 
+      Maar dat doe ik misschien wel als ik tests met weinig trials maak.
+      Hiervoor wil ik eigelijk denk ik ook functie testen maken.
+      testen die de filterfuncties testen om precies te zijn. 
 
 """
 
@@ -123,13 +102,15 @@ class TestBig:
         assert resp2.status_code == 204
 
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:sqlalchemy.exc.SAWarning")
     @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
     def test_delete_trial(self, db, client, trials, challenges, question, user):
         # Choose 10 trials and delete those
+        # for trial in sample(trials, 10):
+        #     trial.delete(commit=False)
+        # db.session.commit()
         for trial in sample(trials, 10):
-            trial.delete(commit=False)
-        db.session.commit()
+            trial.delete()
 
         resp = client.get(url_for('challenge.get_challenges',
                                   question_id=question.id),
@@ -169,7 +150,8 @@ class TestBig:
 
         assert(isinstance(resp.json, list))
 
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(1, 1, 1, 1, 0)], indirect=True)
+    @pytest.mark.parametrize("users, images, trials, questions, challenges",
+                             [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0)], indirect=True)
     def test_few_trials(self, client, challenges, user, question):
         resp = client.get(url_for('challenge.get_challenges',
                                   question_id=question.id),

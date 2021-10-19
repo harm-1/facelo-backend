@@ -34,7 +34,8 @@ def app():
 def client(app):
     return app.test_client()
 
-@pytest.fixture(scope='class')
+# @pytest.fixture(scope='class')
+@pytest.fixture()
 def db(app):
     """A database for the tests."""
     _db.app = app

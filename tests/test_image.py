@@ -1,15 +1,19 @@
 # coding: utf-8
 
 import pytest
+import factory
 
 from flask import url_for
 from .conftest import header
 
 from .factories import ImageFactory
 
+
 @pytest.fixture
 def image_dict():
-    return ImageFactory.stub().__dict__
+    image_dict = factory.build(dict, FACTORY_CLASS=ImageFactory)
+    del image_dict['user']
+    return image_dict
 
 @pytest.fixture
 def upload_image(client, image_dict, user):

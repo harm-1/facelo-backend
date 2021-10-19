@@ -1,6 +1,7 @@
 # coding: utf-8
 
 import pytest
+import factory
 
 from flask import url_for
 from .conftest import header
@@ -9,7 +10,10 @@ from .factories import TrialFactory
 
 @pytest.fixture
 def trial_dict():
-    return TrialFactory.stub().__dict__
+    trial_dict = factory.build(dict, FACTORY_CLASS=TrialFactory)
+    del trial_dict['image']
+    del trial_dict['question']
+    return trial_dict
 
 @pytest.mark.usefixtures('db')
 class TestTrial:

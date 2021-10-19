@@ -118,10 +118,15 @@ def generate_challenges(to_create, completed):
 def generate_random(size):
     # TODO this should actually be in the app context and then a yield functios
     # for now, lets just make it work.
+
+    # From the number of trials that are in existance, I can calculate how many challenges I can maximum generate.
+    # I should check if the number trials is sufficient to generate the requested amount of challs.
+    # And if not, then only return the amount that is possible.
     if len(Trial.query.all()) < 2:
         return []
 
-    random_trials = Trial.query.order_by(sql_random()).limit(size*3).all()
+    # TODO should be checked for lower than a number of hidden votes, but will refactor also probably
+    random_trials = Trial.query.order_by(sql_random()).limit(size*5).all()
     while len(random_trials) < size*3:
         random_trials.extend(Trial.query.order_by(sql_random()).all())
 
@@ -134,9 +139,7 @@ def generate_random(size):
     return(generated)
 
 def generate_sametrial(size, completed):
-
-
-    if len(Trial.query.all()) < 2 or len(completed) == 0:
+    if len(Trial.query.all()) == 0 or len(completed) == 0:
         return []
 
     random_trials = Trial.query.order_by(sql_random()).limit(size).all()

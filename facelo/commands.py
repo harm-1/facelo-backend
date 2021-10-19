@@ -9,6 +9,14 @@ from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.exceptions import MethodNotAllowed, NotFound
 
+from facelo.database import db as _db
+
+from facelo.user.models import User
+import sys
+sys.path.append("..")
+from tests.factories import (UserFactory, ImageFactory, TrialFactory,
+                             QuestionFactory, ChallengeFactory)
+
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.join(HERE, os.pardir)
 TEST_PATH = os.path.join(PROJECT_ROOT, 'tests')
@@ -123,3 +131,38 @@ def urls(url, order):
 
     for row in rows:
         click.echo(str_template.format(*row[:column_length]))
+
+@click.command()
+@click.option('-u', '--users', default=10, type=int)
+@click.option('-i', '--images', default=20, type=int)
+@click.option('-t', '--trials', default=20, type=int)
+@click.option('-q', '--questions', default=1, type=int)
+@click.option('-c', '--challenges', default=300, type=int)
+@click.option('-e', '--email', default='foo@bar.com', type=str,
+              help='email for dummy user to log in with')
+@click.option('-p', '--password', default='foobar', type=str,
+              help='password for dummy user to log in with')
+@with_appcontext
+def seed(users, images, trials, questions, challenges, email, password):
+    print('deleting database')
+    assert current_app.debug
+    assert current_app.env == 'development'
+    _db.drop_all()
+
+    print('creating database')
+    _db.create_all()
+
+    print('seeding database')
+    assert trials <= images*questions
+    print(f'creating {users} users, {images} images, {trials} trials, ' \
+          f'{questions} questions, {challenges} challenges')
+    c_user = UserFactory(email=email, password=password)
+    c_users = [c_user] + UserFactory.create_batch(size=users-1)
+    c_images = ImageFactory.create_batch(size=images)
+    c_questions = QuestionFactory.create_batch(size=questions)
+    c_trials = TrialFactory.create_batch(size=trials)
+    c_challenges = ChallengeFactory.create_batch(size=challenges)
+
+    print(f'created {len(c_users)} users, {len(c_images)} images, {len(c_trials)} trials, ' \
+          f'{len(c_questions)} questions, {len(c_challenges)} challenges')
+
