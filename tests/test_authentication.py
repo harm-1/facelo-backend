@@ -38,22 +38,18 @@ class TestAuthenticate:
         assert resp.json["token"] != "None"
         assert resp.json["token"] != ""
 
+    # fmt: off
     @pytest.mark.parametrize(
-        "user_dict", [{"email": "foo@bar.com", "password": "foobar"}], indirect=True
-    )
+        "user_dict", [{"email": "foo@bar.com", "password": "foobar"}], indirect=True)
     @pytest.mark.parametrize(
-        "credentials, status_code",
-        [
-            ({"email": "foo@bar.com", "password": "foobar"}, 200),
-            ({"email": "bar@foo.com", "password": "foobar"}, 404),
-            ({"email": "foo@bar.com", "password": "barfoo"}, 401),
-        ],
-    )
-    def test_login_response_codes(
-        self, client, register_user, credentials, status_code
-    ):
+        "credentials, code",
+        [({"email": "foo@bar.com", "password": "foobar"}, 200),
+         ({"email": "bar@foo.com", "password": "foobar"}, 404),
+         ({"email": "foo@bar.com", "password": "barfoo"}, 401)])
+    def test_login_response_codes(self, client, register_user, credentials, code):
         resp = client.post(url_for("user.login_user"), json=credentials)
-        assert resp.status_code == status_code
+        assert resp.status_code == code
+    # fmt: on
 
     def test_get_user(self, client, user_dict, register_user):
         token = str(register_user.json["token"])
