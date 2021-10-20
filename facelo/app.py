@@ -26,6 +26,7 @@ def create_app(config_object=ProdConfig):
     # logger
     return app
 
+
 def register_extensions(app):
     """Register Flask extensions."""
     bcrypt.init_app(app)
@@ -33,9 +34,10 @@ def register_extensions(app):
     migrate.init_app(app, db)
     jwt.init_app(app)
 
+
 def register_blueprints(app):
     """Register Flask blueprints."""
-    origins = app.config.get('CORS_ORIGIN_WHITELIST', '*')
+    origins = app.config.get("CORS_ORIGIN_WHITELIST", "*")
     cors.init_app(user.views.blueprint, origins=origins)
 
     app.register_blueprint(user.views.blueprint)
@@ -44,8 +46,8 @@ def register_blueprints(app):
     app.register_blueprint(question.views.blueprint)
     app.register_blueprint(challenge.views.blueprint)
 
-def register_errorhandlers(app):
 
+def register_errorhandlers(app):
     def errorhandler(error):
         response = error.to_json()
         response.status_code = error.status_code
@@ -53,9 +55,11 @@ def register_errorhandlers(app):
 
     app.errorhandler(InvalidUsage)(errorhandler)
 
+
 def register_shellcontext(app):
     """Register shell context objects."""
     pass
+
 
 def register_commands(app):
     """Register Click commands."""

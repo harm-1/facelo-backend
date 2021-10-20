@@ -15,8 +15,7 @@ class ChallengeSchema(Schema):
 
     @pre_load
     def load(self, data, pass_many=True, **kwargs):
-        return data['challenges']
-
+        return data["challenges"]
 
 
 challenge_schema = ChallengeSchema()

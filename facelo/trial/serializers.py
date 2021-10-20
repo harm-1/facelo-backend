@@ -15,11 +15,12 @@ class TrialSchema(Schema):
     # It depends on how I want the route to be I guess
     question_id = fields.Integer(dump_only=True)
 
-
     @validates_schema
     def validate_numbers(self, data, **kwargs):
         if data["judge_age_min"] >= data["judge_age_max"]:
-            raise ValidationError("The minimum judge age must be lower than the maximum judge age.")
+            raise ValidationError(
+                "The minimum judge age must be lower than the maximum judge age."
+            )
 
 
 trial_schema = TrialSchema()

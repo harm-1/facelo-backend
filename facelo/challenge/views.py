@@ -14,7 +14,7 @@ from facelo.database import db
 from .models import Challenge
 from .serializers import challenge_schema, challenge_schemas
 
-blueprint = Blueprint('challenge', __name__)
+blueprint = Blueprint("challenge", __name__)
 
 from facelo.question.models import Question
 from facelo.trial.models import Trial
@@ -24,7 +24,7 @@ CHALLENGE_TYPE_SAMETRIAL = 2
 CHALLENGE_TYPE_TRIANGLE = 3
 
 
-@blueprint.route('/question/<question_id>/challenges', methods=['GET'])
+@blueprint.route("/question/<question_id>/challenges", methods=["GET"])
 @jwt_required()
 @marshal_with(challenge_schemas)
 def get_challenges(question_id):
@@ -43,21 +43,24 @@ def get_challenges(question_id):
     return uncompleted + created
 
 
-@blueprint.route('/question/<question_id>/challenges', methods=['PUT'])
+@blueprint.route("/question/<question_id>/challenges", methods=["PUT"])
 @jwt_required()
 @use_kwargs(challenge_schemas)
 @marshal_with(challenge_schemas)
 def put_challenges(*challenges, **kwargs):
     for chall_result in challenges:
-        chall_ori = Challenge.get_by_id(chall_result['id']).complete(chall_result)
+        chall_ori = Challenge.get_by_id(chall_result["id"]).complete(chall_result)
 
-    return ('', 204)
-
+    return ("", 204)
 
 
 def get_latest_challenges(question, size=62):
-    latest = Challenge.query.filter_by(judge=current_user, question_id=question.id) \
-                            .order_by(Challenge.id.desc()).limit(size).all()
+    latest = (
+        Challenge.query.filter_by(judge=current_user, question_id=question.id)
+        .order_by(Challenge.id.desc())
+        .limit(size)
+        .all()
+    )
     return latest
 
 
@@ -75,30 +78,42 @@ def sort_by_completed(challenges):
 def generate_challenges_type(uncompleted):
     to_create = {}
     if len(uncompleted) < 6:
-        to_create = {CHALLENGE_TYPE_RANDOM: 6,
-                     CHALLENGE_TYPE_SAMETRIAL: 4,
-                     CHALLENGE_TYPE_TRIANGLE: 2}
+        to_create = {
+            CHALLENGE_TYPE_RANDOM: 6,
+            CHALLENGE_TYPE_SAMETRIAL: 4,
+            CHALLENGE_TYPE_TRIANGLE: 2,
+        }
     elif len(uncompleted) < 12:
-        to_create = {CHALLENGE_TYPE_RANDOM: 3,
-                     CHALLENGE_TYPE_SAMETRIAL: 2,
-                     CHALLENGE_TYPE_TRIANGLE: 1}
+        to_create = {
+            CHALLENGE_TYPE_RANDOM: 3,
+            CHALLENGE_TYPE_SAMETRIAL: 2,
+            CHALLENGE_TYPE_TRIANGLE: 1,
+        }
     return to_create
+
 
 def generate_challenges(to_create, completed):
     # I need to check that I dont send the same ones everytime
     # I think I only dont want to send the same ones in the newly created with respect to the last 50.
     generated_random = generate_random(size=to_create[CHALLENGE_TYPE_RANDOM])
-    generated_sametrial = generate_sametrial(to_create[CHALLENGE_TYPE_SAMETRIAL], completed)
-    generated_triangle= generate_triangle(to_create[CHALLENGE_TYPE_TRIANGLE], completed)
+    generated_sametrial = generate_sametrial(
+        to_create[CHALLENGE_TYPE_SAMETRIAL], completed
+    )
+    generated_triangle = generate_triangle(
+        to_create[CHALLENGE_TYPE_TRIANGLE], completed
+    )
     generated = generated_random + generated_sametrial + generated_triangle
 
     # TODO test
     # TODO this can be improved
     for combo in combinations(generated, 2):
-        if (combo[0]['trial_1'] == combo[1]['trial_1'] and
-            combo[0]['trial_2'] == combo[1]['trial_2']) or \
-            (combo[0]['trial_1'] == combo[1]['trial_2'] and
-             combo[0]['trial_2'] == combo[1]['trial_1']):
+        if (
+            combo[0]["trial_1"] == combo[1]["trial_1"]
+            and combo[0]["trial_2"] == combo[1]["trial_2"]
+        ) or (
+            combo[0]["trial_1"] == combo[1]["trial_2"]
+            and combo[0]["trial_2"] == combo[1]["trial_1"]
+        ):
             # Maximum 1 of the combo needs to remain, this is not straightforward.
             if combo[0] in generated:
                 generated.remove(combo[0])
@@ -107,14 +122,22 @@ def generate_challenges(to_create, completed):
     # TODO test this
     for chall in completed:
         generated[:] = [
-            gen_sample for gen_sample in generated if not (
-                (gen_sample['trial_1'] == chall.winner_id and
-                 gen_sample['trial_2'] == chall.loser_id) or
-                (gen_sample['trial_1'] == chall.loser_id and
-                 gen_sample['trial_2'] == chall.winner_id))
+            gen_sample
+            for gen_sample in generated
+            if not (
+                (
+                    gen_sample["trial_1"] == chall.winner_id
+                    and gen_sample["trial_2"] == chall.loser_id
+                )
+                or (
+                    gen_sample["trial_1"] == chall.loser_id
+                    and gen_sample["trial_2"] == chall.winner_id
+                )
+            )
         ]
     shuffle(generated)
     return generated
+
 
 def generate_random(size):
     # TODO this should actually be in the app context and then a yield functios
@@ -127,8 +150,8 @@ def generate_random(size):
         return []
 
     # TODO should be checked for lower than a number of hidden votes, but will refactor also probably
-    random_trials = Trial.query.order_by(sql_random()).limit(size*5).all()
-    while len(random_trials) < size*3:
+    random_trials = Trial.query.order_by(sql_random()).limit(size * 5).all()
+    while len(random_trials) < size * 3:
         random_trials.extend(Trial.query.order_by(sql_random()).all())
 
     generated = []
@@ -136,43 +159,48 @@ def generate_random(size):
         trial_1 = random_trials.pop(0)
         trial_2 = random_trials.pop(0)
         if trial_1.image.user != trial_2.image.user:
-            generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': trial_1, 'trial_2': trial_2})
-    return(generated)
+            generated.append(
+                {"type": CHALLENGE_TYPE_RANDOM, "trial_1": trial_1, "trial_2": trial_2}
+            )
+    return generated
+
 
 def generate_sametrial(size, completed):
     if len(Trial.query.all()) == 0 or len(completed) == 0:
         return []
 
     random_trials = Trial.query.order_by(sql_random()).limit(size).all()
-    while len(random_trials) < size*2:
+    while len(random_trials) < size * 2:
         random_trials.extend(Trial.query.order_by(sql_random()).all())
 
-    same_trials = [chall.winner for chall in completed if chall.winner] + \
-        [chall.loser for chall in completed if chall.loser]
+    same_trials = [chall.winner for chall in completed if chall.winner] + [
+        chall.loser for chall in completed if chall.loser
+    ]
 
     generated = []
     while len(generated) < size:
         trial_1 = random_trials.pop(0)
         trial_2 = choice(same_trials)
         if trial_1.image.user != trial_2.image.user:
-            generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': trial_1, 'trial_2': trial_2})
-    return(generated)
+            generated.append(
+                {"type": CHALLENGE_TYPE_RANDOM, "trial_1": trial_1, "trial_2": trial_2}
+            )
+    return generated
 
 
 def generate_triangle(size, completed):
     # creating the trials for no triangular winner checks
     # This functio will generate less triangular checks when they are not available.
-    # Which is probably what I want. 
+    # Which is probably what I want.
     winners = []
     losers = []
     for challenge in completed:
-        if challenge.winner_id != None and \
-           challenge.loser_id != None:
+        if challenge.winner_id != None and challenge.loser_id != None:
             winners.append(challenge.winner_id)
             losers.append(challenge.loser_id)
 
     # TODO this can be optimised, because I need only a few
-    # I can probably make some yield function. 
+    # I can probably make some yield function.
     double_same_trials = list(set(winners).intersection(losers))
     generated = []
     for trial_id in double_same_trials:
@@ -185,25 +213,32 @@ def generate_triangle(size, completed):
 
         if winner.image.user != loser.image.user:
             if choice([True, False]):
-                generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': winner, 'trial_2': loser})
+                generated.append(
+                    {"type": CHALLENGE_TYPE_RANDOM, "trial_1": winner, "trial_2": loser}
+                )
             else:
-                generated.append({'type': CHALLENGE_TYPE_RANDOM, 'trial_1': loser, 'trial_2': winner})
-
+                generated.append(
+                    {"type": CHALLENGE_TYPE_RANDOM, "trial_1": loser, "trial_2": winner}
+                )
 
         if len(generated) == size:
             break
     return generated
 
+
 def create_challenges(generated, question):
     # Now the challenges are created, it is done this way to create them in random order
     created = []
     for gen_sample in generated:
-        created.append(Challenge(judge=current_user, judge_age=None, type=gen_sample['type'], \
-                                 question=question, winner=gen_sample['trial_1'],
-                                 loser=gen_sample['trial_2']))
+        created.append(
+            Challenge(
+                judge=current_user,
+                judge_age=None,
+                type=gen_sample["type"],
+                question=question,
+                winner=gen_sample["trial_1"],
+                loser=gen_sample["trial_2"],
+            )
+        )
     db.session.commit()
     return created
-
-
-
-

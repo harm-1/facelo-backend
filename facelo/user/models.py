@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """User models."""
 import datetime as dt
@@ -12,25 +11,25 @@ from facelo.extensions import bcrypt
 
 class User(SurrogatePK, Model):
 
-    __tablename__ = 'users'
+    __tablename__ = "users"
     email = Column(db.String(100), unique=True, nullable=False)
     password = Column(db.LargeBinary(128))
     birth_day = Column(db.Date, nullable=False)
     gender = Column(TINYINT(unsigned=True))
     sexual_preference = Column(TINYINT(unsigned=True))
     karma = Column(db.Integer)
-    token: str = ''
+    token: str = ""
 
     # The user has a one-to-many relationship with the image.
-    images = relationship('Image', back_populates='user', cascade="all, delete-orphan")
+    images = relationship("Image", back_populates="user", cascade="all, delete-orphan")
 
     # The user has a one-to-many relationship with the challenge.
-    judged_challenges = relationship('Challenge', back_populates='judge')
+    judged_challenges = relationship("Challenge", back_populates="judge")
 
     def __init__(self, **kwargs):
         """Create instance."""
         db.Model.__init__(self, **kwargs)
-        self.set_password(kwargs['password'])
+        self.set_password(kwargs["password"])
 
     def set_password(self, password):
         """Set password."""
@@ -45,4 +44,4 @@ class User(SurrogatePK, Model):
 
     def __repr__(self):
         """Represent instance as a unique string."""
-        return '<User({email!r})>'.format(email=self.email)
+        return "<User({email!r})>".format(email=self.email)

@@ -5,8 +5,13 @@ import pytest
 from flask import url_for
 
 from .conftest import header
-from .factories import (ChallengeFactory, ImageFactory, QuestionFactory,
-                        TrialFactory, UserFactory)
+from .factories import (
+    ChallengeFactory,
+    ImageFactory,
+    QuestionFactory,
+    TrialFactory,
+    UserFactory,
+)
 
 
 @pytest.fixture
@@ -14,43 +19,47 @@ def users(db, user, request):
     # This fixture uses the user fixture, because I pass data to that fixture. So that
     # I have a user that I can log into
     # I subtract 1 to compensate for the user
-    size = request.param if hasattr(request, 'param') else 10
-    users = UserFactory.create_batch(size=size-1)
+    size = request.param if hasattr(request, "param") else 10
+    users = UserFactory.create_batch(size=size - 1)
     # I yield the user and the users in one list
     yield [user] + users
     for new_user in users:
         new_user.delete(commit=False)
     db.session.commit()
 
+
 @pytest.fixture
 def images(db, image, request, users):
-    size = request.param if hasattr(request, 'param') else 20
-    images = ImageFactory.create_batch(size=size-1)
+    size = request.param if hasattr(request, "param") else 20
+    images = ImageFactory.create_batch(size=size - 1)
     yield [image] + images
     for new_image in images:
         new_image.delete(commit=False)
     db.session.commit()
 
+
 @pytest.fixture
 def questions(db, question, request):
-    size = request.param if hasattr(request, 'param') else 1
-    questions = QuestionFactory.create_batch(size=size-1)
+    size = request.param if hasattr(request, "param") else 1
+    questions = QuestionFactory.create_batch(size=size - 1)
     yield [question] + questions
     # I wont remove questions ever for data consistancy
     # So I wont remove them here
 
+
 @pytest.fixture
 def trials(db, trial, request, images, questions):
-    size = request.param if hasattr(request, 'param') else 20
-    trials = TrialFactory.create_batch(size=size-1)
+    size = request.param if hasattr(request, "param") else 20
+    trials = TrialFactory.create_batch(size=size - 1)
     yield [trial] + trials
     for new_trial in trials:
         new_trial.delete(commit=False)
     db.session.commit()
 
+
 @pytest.fixture
 def challenges(db, request, users, trials, questions):
-    size = request.param if hasattr(request, 'param') else 300
+    size = request.param if hasattr(request, "param") else 300
     challenges = ChallengeFactory.create_batch(size=size, completed=True)
     yield challenges
     # I wont remove challenges ever for data consistancy
@@ -59,10 +68,12 @@ def challenges(db, request, users, trials, questions):
 
 @pytest.fixture
 def get_challenges(client, question, user):
-    resp = client.get(url_for('challenge.get_challenges',
-                                  question_id=question.id),
-                          headers=header(user.token))
+    resp = client.get(
+        url_for("challenge.get_challenges", question_id=question.id),
+        headers=header(user.token),
+    )
     return resp
+
 
 """
     Ik moet meer tests hebben, en ik moet er ff over denken wat voor tests ik nodig heb.
@@ -81,31 +92,43 @@ def get_challenges(client, question, user):
 """
 
 
-
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestBig:
-
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)],
+        indirect=True,
+    )
     def test_get_challenges(self, challenges, get_challenges):
-        assert(isinstance(get_challenges.json, list))
+        assert isinstance(get_challenges.json, list)
 
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)],
+        indirect=True,
+    )
     def test_put_challenges(self, client, user, questions, challenges, get_challenges):
         resp1 = get_challenges
         for challenge in resp1.json:
-            del challenge['question_id']
+            del challenge["question_id"]
             if choice([True, False]) == True:
-                challenge['winner_id'] = challenge['loser_id']
-                challenge['loser_id'] = challenge['winner_id']
+                challenge["winner_id"] = challenge["loser_id"]
+                challenge["loser_id"] = challenge["winner_id"]
 
-        resp2 = client.put(url_for('challenge.put_challenges', question_id=questions[0].id),
-                           headers=header(user.token), json={'challenges':resp1.json})
+        resp2 = client.put(
+            url_for("challenge.put_challenges", question_id=questions[0].id),
+            headers=header(user.token),
+            json={"challenges": resp1.json},
+        )
 
         assert resp2.status_code == 204
 
-
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:sqlalchemy.exc.SAWarning")
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials':")
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)],
+        indirect=True,
+    )
     def test_delete_trial(self, db, client, trials, challenges, question, user):
         # Choose 10 trials and delete those
         # for trial in sample(trials, 10):
@@ -114,31 +137,41 @@ class TestBig:
         for trial in sample(trials, 10):
             trial.delete()
 
-        resp = client.get(url_for('challenge.get_challenges',
-                                  question_id=question.id),
-                          headers=header(user.token))
+        resp = client.get(
+            url_for("challenge.get_challenges", question_id=question.id),
+            headers=header(user.token),
+        )
 
-        assert(isinstance(resp.json, list))
+        assert isinstance(resp.json, list)
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials':")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images':")
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)],
+        indirect=True,
+    )
     def test_delete_image(self, db, client, images, challenges, question, user):
         # Choose 10 trials and delete those
         for image in sample(images, 10):
             image.delete(commit=False)
         db.session.commit()
 
-        resp = client.get(url_for('challenge.get_challenges',
-                                  question_id=question.id),
-                          headers=header(user.token))
+        resp = client.get(
+            url_for("challenge.get_challenges", question_id=question.id),
+            headers=header(user.token),
+        )
 
-        assert(isinstance(resp.json, list))
+        assert isinstance(resp.json, list)
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials':")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images':")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users':")
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)],
+        indirect=True,
+    )
     def test_delete_user(self, db, client, users, challenges, question, user):
         # Choose 10 trials and delete those
         for user_sample in sample(users, 5):
@@ -146,17 +179,22 @@ class TestBig:
                 user_sample.delete(commit=False)
         db.session.commit()
 
-        resp = client.get(url_for('challenge.get_challenges',
-                                  question_id=question.id),
-                          headers=header(user.token))
+        resp = client.get(
+            url_for("challenge.get_challenges", question_id=question.id),
+            headers=header(user.token),
+        )
 
-        assert(isinstance(resp.json, list))
+        assert isinstance(resp.json, list)
 
-    @pytest.mark.parametrize("users, images, trials, questions, challenges",
-                             [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0)], indirect=True)
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0)],
+        indirect=True,
+    )
     def test_few_trials(self, client, challenges, user, question):
-        resp = client.get(url_for('challenge.get_challenges',
-                                  question_id=question.id),
-                          headers=header(user.token))
+        resp = client.get(
+            url_for("challenge.get_challenges", question_id=question.id),
+            headers=header(user.token),
+        )
 
-        assert(resp.json == [])
+        assert resp.json == []

@@ -11,7 +11,7 @@ from facelo.trial.models import Trial
 from facelo.user.models import User
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestUser:
     """User tests."""
 
@@ -35,26 +35,31 @@ class TestUser:
         assert user.password
         assert user.karma
 
-    @pytest.mark.parametrize("user_dict", [{'password': 'foobarbaz123'}], indirect=True)
+    @pytest.mark.parametrize("user_dict", [{"password": "foobarbaz123"}], indirect=True)
     def test_check_password(self, user_dict, user):
         """Check password."""
-        assert user.check_password('foobarbaz123')
-        assert not user.check_password('barfoobaz')
+        assert user.check_password("foobarbaz123")
+        assert not user.check_password("barfoobaz")
 
     def test_relations(self, user, image):
         assert image in user.images
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'trials' expected to delete:"
+    )
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'images' expected to delete:"
+    )
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'users' expected to delete:"
+    )
     def test_delete(self, user, image):
         user.delete()
         assert Image.get_by_id(image.id) == None
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestImage:
-
     def test_get_by_id(self, image):
         retrieved = Image.get_by_id(image.id)
         assert retrieved == image
@@ -77,17 +82,20 @@ class TestImage:
         assert image.user == user
         assert trial in image.trials
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'trials' expected to delete:"
+    )
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'images' expected to delete:"
+    )
     def test_delete(self, user, image, trial):
         image.delete()
         assert image not in user.images
         assert Trial.get_by_id(trial.id) == None
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestTrial:
-
     def test_get_by_id(self, trial):
         retrieved = Trial.get_by_id(trial.id)
         assert retrieved == trial
@@ -102,7 +110,9 @@ class TestTrial:
         assert trial.question == question
         assert challenge in trial.challenges
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings(
+        "ignore:DELETE statement on table 'trials' expected to delete:"
+    )
     def test_delete(self, image, trial, challenge, question):
         trial.delete()
         assert trial not in image.trials
@@ -111,9 +121,8 @@ class TestTrial:
         assert challenge.loser != trial
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestQuestion:
-
     def test_get_by_id(self, question):
         retrieved = Question.get_by_id(question.id)
         assert retrieved == question
@@ -127,9 +136,8 @@ class TestQuestion:
         assert trial in question.trials
 
 
-@pytest.mark.usefixtures('db')
+@pytest.mark.usefixtures("db")
 class TestChallenge:
-
     def test_get_by_id(self, challenge):
         retrieved = Challenge.get_by_id(challenge.id)
         assert retrieved == challenge
@@ -153,11 +161,3 @@ class TestChallenge:
         assert challenge.loser == losing_trial
         assert challenge.question == question
         assert challenge.judge == user
-
-
-
-
-
-
-
-

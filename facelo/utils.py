@@ -1,4 +1,3 @@
-
 # -*- coding: utf-8 -*-
 """Helper utilities and decorators."""
 from facelo.user.models import User  # noqa
