@@ -4,11 +4,11 @@ import datetime as dt
 
 import pytest
 
-from facelo.user.models import User
-from facelo.image.models import Image
-from facelo.trial.models import Trial
-from facelo.question.models import Question
 from facelo.challenge.models import Challenge
+from facelo.image.models import Image
+from facelo.question.models import Question
+from facelo.trial.models import Trial
+from facelo.user.models import User
 
 
 @pytest.mark.usefixtures('db')

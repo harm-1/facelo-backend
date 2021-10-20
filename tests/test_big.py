@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-import pytest
 from random import choice, sample
+
+import pytest
 from flask import url_for
 
 from .conftest import header
-from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
-                        ChallengeFactory)
+from .factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                        TrialFactory, UserFactory)
+
 
 @pytest.fixture
 def users(db, user, request):

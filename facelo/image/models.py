@@ -2,9 +2,11 @@
 """Image models."""
 import datetime as dt
 
-from facelo.database import (Column, Model, SurrogatePK, db, relationship,
-                             reference_col, make_nonupdateable)
 from sqlalchemy.dialects.mysql import TINYINT
+
+from facelo.database import (Column, Model, SurrogatePK, db,
+                             make_nonupdateable, reference_col, relationship)
+
 
 class Image(SurrogatePK, Model):
 

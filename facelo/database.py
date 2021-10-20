@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 """Database module, including the SQLAlchemy database object and DB-related utilities."""
-from sqlalchemy.orm import relationship
 from sqlalchemy import event
+from sqlalchemy.orm import relationship
 from sqlalchemy.util.langhelpers import symbol
-
 
 from .compat import basestring
 from .extensions import db

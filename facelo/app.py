@@ -3,11 +3,11 @@
 # import logging
 
 from flask import Flask
-from facelo.extensions import bcrypt, db, cors, migrate, jwt
 
-from facelo import commands, user, image, trial, question, challenge
-from facelo.settings import ProdConfig
 from facelo.exceptions import InvalidUsage
+from facelo.extensions import bcrypt, cors, db, jwt, migrate
+from facelo.settings import ProdConfig
+from facelo import challenge, commands, image, question, trial, user
 
 
 def create_app(config_object=ProdConfig):

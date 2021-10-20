@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 """Challenge models."""
 import datetime as dt
-from flask_jwt_extended import get_current_user
-from facelo.database import (Column, Model, SurrogatePK, db, relationship,
-                             reference_col)
 
+from flask_jwt_extended import get_current_user
 from sqlalchemy.dialects.mysql import TINYINT
+
+from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
+                             relationship)
+
 
 class Challenge(SurrogatePK, Model):
 

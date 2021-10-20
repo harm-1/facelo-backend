@@ -3,11 +3,12 @@
 """User models."""
 import datetime as dt
 
+from flask_jwt_extended import create_access_token
+from sqlalchemy.dialects.mysql import TINYINT
+
 from facelo.database import Column, Model, SurrogatePK, db, relationship
 from facelo.extensions import bcrypt
 
-from flask_jwt_extended import create_access_token
-from sqlalchemy.dialects.mysql import TINYINT
 
 class User(SurrogatePK, Model):
 

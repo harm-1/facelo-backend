@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, jsonify
-from flask_apispec import use_kwargs, marshal_with
-from flask_jwt_extended import jwt_required, current_user
+from flask_apispec import marshal_with, use_kwargs
+from flask_jwt_extended import current_user, jwt_required
 
 from facelo.database import db
-from .models import Trial
 from facelo.image.models import Image
 from facelo.question.models import Question
+
+from .models import Trial
 from .serializers import trial_schema, trial_schemas
 
 blueprint = Blueprint('trial', __name__)

@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
+import datetime as dt
+from collections import Counter
+from itertools import combinations
+from random import choice, shuffle
+
 from flask import Blueprint, jsonify, request
-from flask_apispec import use_kwargs, marshal_with
-from flask_jwt_extended import jwt_required, current_user
+from flask_apispec import marshal_with, use_kwargs
+from flask_jwt_extended import current_user, jwt_required
+from sqlalchemy.sql.functions import random as sql_random
 
 from facelo.database import db
+
 from .models import Challenge
 from .serializers import challenge_schema, challenge_schemas
-
-import datetime as dt
-from random import shuffle, choice
-from itertools import combinations
-from collections import Counter
-from sqlalchemy.sql.functions import random as sql_random
 
 blueprint = Blueprint('challenge', __name__)
 

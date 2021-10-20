@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 """Factories to help in tests."""
-import factory
-from factory import PostGeneration, Faker, SubFactory, LazyAttribute
-from factory.alchemy import SQLAlchemyModelFactory
-from flask_jwt_extended import create_access_token
 import datetime
 from random import choice
 
-from facelo.database import db
-from facelo.user.models import User
-from facelo.image.models import Image
-from facelo.trial.models import Trial
-from facelo.question.models import Question
+import factory
+from factory import Faker, LazyAttribute, PostGeneration, SubFactory
+from factory.alchemy import SQLAlchemyModelFactory
+from flask_jwt_extended import create_access_token
+
 from facelo.challenge.models import Challenge
+from facelo.database import db
+from facelo.image.models import Image
+from facelo.question.models import Question
+from facelo.trial.models import Trial
+from facelo.user.models import User
 
 
 class BaseFactory(SQLAlchemyModelFactory):

@@ -1,5 +1,6 @@
 from flask import jsonify
 
+
 def template(data, code=500):
     return {'message': {'errors': {'body': data}}, 'status_code': code}
 

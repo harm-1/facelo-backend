@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 """Defines fixtures available to all tests."""
 
-import pytest
 import factory
+import pytest
 
 from facelo.app import create_app
 from facelo.database import db as _db
 from facelo.settings import TestConfig
 
-from .factories import (UserFactory, ImageFactory, TrialFactory, QuestionFactory,
-                        ChallengeFactory)
+from .factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                        TrialFactory, UserFactory)
 
 
 def header(token):

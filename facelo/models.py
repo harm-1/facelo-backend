@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """models."""
 import datetime as dt
-from database import (Column, Model, SurrogatePK, db, relationship,
-                      reference_col)
 
+from database import (Column, Model, SurrogatePK, db, reference_col,
+                      relationship)
 from sqlalchemy.dialects.mysql import TINYINT
+
 
 class UserQuestion(SurrogatePK, Model):
 

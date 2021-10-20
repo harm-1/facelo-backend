@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """User views."""
 from flask import Blueprint, jsonify
-from flask_apispec import use_kwargs, marshal_with
-from flask_jwt_extended import jwt_required, current_user
+from flask_apispec import marshal_with, use_kwargs
+from flask_jwt_extended import current_user, jwt_required
 
 from facelo.database import db
+
 from .models import Image
 from .serializers import image_schema, image_schemas
 

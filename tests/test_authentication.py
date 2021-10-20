@@ -1,12 +1,15 @@
 # coding: utf-8
 
-import pytest
 import json
 
+import pytest
 from flask import url_for
-from facelo.exceptions import USER_ALREADY_REGISTERED, USER_NOT_FOUND, USER_PASSWORD_INCORRECT
+
+from facelo.exceptions import (USER_ALREADY_REGISTERED, USER_NOT_FOUND,
+                               USER_PASSWORD_INCORRECT)
 
 from .factories import UserFactory
+
 
 @pytest.fixture
 def register_user(client, user_dict):

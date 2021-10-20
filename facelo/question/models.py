@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Image models."""
-from facelo.database import (Column, Model, SurrogatePK, db, relationship,
-                             reference_col)
+from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
+                             relationship)
+
 
 class Question(SurrogatePK, Model):
 

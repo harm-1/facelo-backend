@@ -13,10 +13,12 @@ flask-jwt-extended = "*"
 flask-migrate = "*"
 flask-apispec = "*"
 mysqlclient = "*"
-factory_boy = "*"
 
 [dev-packages]
 pytest = "*"
+factory_boy = "*"
+flake8 = "*"
+isort = "*"
 
 [requires]
-python_version = "3.9.2"
+python_version = "*"

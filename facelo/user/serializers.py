@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from marshmallow import Schema, fields, pre_load, post_dump
+from marshmallow import Schema, fields, post_dump, pre_load
 
 
 class UserSchema(Schema):

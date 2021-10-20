@@ -3,7 +3,6 @@
 from facelo.app import create_app
 from facelo.settings import DevConfig, ProdConfig
 
-
 # def test_production_config():
 #     """Production config."""
 #     app = create_app(ProdConfig)

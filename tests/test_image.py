@@ -1,11 +1,10 @@
 # coding: utf-8
 
-import pytest
 import factory
-
+import pytest
 from flask import url_for
-from .conftest import header
 
+from .conftest import header
 from .factories import ImageFactory
 
 
