@@ -42,17 +42,13 @@ def client(app):
     return app.test_client()
 
 
-# @pytest.fixture(autouse=True)
-# def cleanup(app):
-#     yield None
-#     import facelo
-#     from facelo.challenge.generate import random_trials, random_trial_generator
-#     try:
-#         while next(random_trials):
-#             pass
-#     except StopIteration:
-#         pass
-#     facelo.challenge.generate.random_trials = random_trial_generator()
+@pytest.fixture(autouse=True)
+def cleanup(app):
+    yield None
+    from facelo.challenge import generate
+    from importlib import reload
+    generate = reload(generate)
+
 
 # @pytest.fixture(scope='class')
 @pytest.fixture()

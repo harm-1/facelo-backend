@@ -20,20 +20,9 @@ def random_trial_generator():
         return None
     while True:
         for trial in Trial.query.order_by(sql_random()).limit(5).all():
-            if trial:
-                yield trial
-            else:
-                yield None
-
+            yield trial
 
 random_trials = random_trial_generator()
-
-def random_trial():
-    try:
-        return next(random_trials)
-    except:
-        random_trials = random_trial_generator()
-        return next(random_trials)
 
 
 def generate_challenges(to_create: dict[int, int], completed: list[Challenge]) -> list[Challenge]:
@@ -86,8 +75,7 @@ def gen_chall_data_random(size: int) -> list[dict[str, int]]:
 
     generated = []
     while len(generated) < size:
-        # trial_1, trial_2 = next(random_trials), next(random_trials)
-        trial_1, trial_2 = random_trial(), random_trial()
+        trial_1, trial_2 = next(random_trials), next(random_trials)
         if trial_1.image.user == trial_2.image.user:
             size -= 1
             continue
@@ -105,8 +93,7 @@ def gen_chall_data_sametrial(size: int, completed: list[Challenge]) -> list[dict
 
     generated = []
     while len(generated) < size:
-        # trial_1 = next(random_trials)
-        trial_1 = random_trial()
+        trial_1 = next(random_trials)
         trial_2 = choice(same_trials)
         if trial_1.image.user == trial_2.image.user:
             size -= 1
