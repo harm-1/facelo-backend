@@ -3,6 +3,7 @@ from random import choice, sample
 
 import pytest
 from flask import url_for
+from itertools import combinations
 
 from .conftest import header
 from .factories import (
@@ -188,13 +189,36 @@ class TestBig:
 
     @pytest.mark.parametrize(
         "users, images, trials, questions, challenges",
-        [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0)],
+        [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0), (1, 1, 2, 1, 0), (1, 1, 3, 1, 0)],
         indirect=True,
     )
-    def test_few_trials(self, client, challenges, user, question):
+    def test_one_user(self, client, challenges, user, trials, question):
         resp = client.get(
             url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token),
+            headers=header(user.token)
         )
+        assert type(resp.json) == list
+        assert len(resp.json) == 0
 
-        assert resp.json == []
+
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(0, 0, 0, 1, 0), (1, 1, 1, 1, 0), (2, 2, 2, 1, 0), (3, 3, 3, 1, 0)],
+        indirect=True,
+    )
+    def test_few_trials(self, client, users, challenges, user, trials, question):
+        resp = client.get(
+            url_for("challenge.get_challenges", question_id=question.id),
+            headers=header(user.token))
+
+        user_trials_dict = {_user:0 for _user in users}
+        for _trial in trials:
+            user_trials_dict[_trial.image.user] += 1
+
+        possible_challenges_count = 0
+        for _user in user_trials_dict:
+            _trials_count = user_trials_dict[_user]
+            possible_challenges_count += _trials_count * (len(trials)-_trials_count)
+
+        assert type(resp.json) == list
+        assert len(resp.json) == possible_challenges_count/2

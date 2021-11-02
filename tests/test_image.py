@@ -19,9 +19,7 @@ def image_dict():
 def upload_image(client, image_dict, user):
     image_dict["date_taken"] = str(image_dict["date_taken"])
 
-    resp = client.post(
-        url_for("image.upload_image"), json=image_dict, headers=header(user.token)
-    )
+    resp = client.post(url_for("image.upload_image"), json=image_dict, headers=header(user.token))
     yield resp
 
 
@@ -32,9 +30,7 @@ class TestImage:
         assert isinstance(resp.json, list)
 
     def test_get_image(self, client, user, image):
-        resp = client.get(
-            url_for("image.get_image", image_id=image.id), headers=header(user.token)
-        )
+        resp = client.get(url_for("image.get_image", image_id=image.id), headers=header(user.token))
         assert resp.json["image_url"] == image.__dict__["image_url"]
 
     def test_upload_image(self, image_dict, upload_image):

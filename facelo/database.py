@@ -71,6 +71,4 @@ def make_nonupdateable(col):
             and old_value != symbol("NO_VALUE")
             and old_value != value
         ):
-            raise NonUpdateableColumnError(
-                col.class_.__name__, col.name, old_value, value
-            )
+            raise NonUpdateableColumnError(col.class_.__name__, col.name, old_value, value)

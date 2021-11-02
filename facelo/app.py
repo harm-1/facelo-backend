@@ -6,11 +6,13 @@ from flask import Flask
 
 from facelo.exceptions import InvalidUsage
 from facelo.extensions import bcrypt, cors, db, jwt, migrate
-from facelo.settings import ProdConfig
+from facelo.settings import DevConfig, TestConfig, ProdConfig
 from facelo import challenge, commands, image, question, trial, user
+from flask.app import Flask
+from typing import Type, Union
 
 
-def create_app(config_object=ProdConfig):
+def create_app(config_object=ProdConfig) -> Flask:
     """Create application factory, as explained here:
     http://flask.pocoo.org/docs/patterns/appfactories/.
 
@@ -27,7 +29,7 @@ def create_app(config_object=ProdConfig):
     return app
 
 
-def register_extensions(app):
+def register_extensions(app: Flask) -> None:
     """Register Flask extensions."""
     bcrypt.init_app(app)
     db.init_app(app)
@@ -35,7 +37,7 @@ def register_extensions(app):
     jwt.init_app(app)
 
 
-def register_blueprints(app):
+def register_blueprints(app: Flask) -> None:
     """Register Flask blueprints."""
     origins = app.config.get("CORS_ORIGIN_WHITELIST", "*")
     cors.init_app(user.views.blueprint, origins=origins)
@@ -47,7 +49,7 @@ def register_blueprints(app):
     app.register_blueprint(challenge.views.blueprint)
 
 
-def register_errorhandlers(app):
+def register_errorhandlers(app: Flask) -> None:
     def errorhandler(error):
         response = error.to_json()
         response.status_code = error.status_code
@@ -56,12 +58,12 @@ def register_errorhandlers(app):
     app.errorhandler(InvalidUsage)(errorhandler)
 
 
-def register_shellcontext(app):
+def register_shellcontext(app: Flask) -> None:
     """Register shell context objects."""
     pass
 
 
-def register_commands(app):
+def register_commands(app: Flask) -> None:
     """Register Click commands."""
     app.cli.add_command(commands.test)
     app.cli.add_command(commands.lint)

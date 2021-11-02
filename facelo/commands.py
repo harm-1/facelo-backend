@@ -46,12 +46,8 @@ def lint(fix_imports):
     """Lint and check code style with flake8 and isort."""
     skip = ["requirements"]
     root_files = glob("*.py")
-    root_directories = [
-        name for name in next(os.walk("."))[1] if not name.startswith(".")
-    ]
-    files_and_directories = [
-        arg for arg in root_files + root_directories if arg not in skip
-    ]
+    root_directories = [name for name in next(os.walk("."))[1] if not name.startswith(".")]
+    files_and_directories = [arg for arg in root_files + root_directories if arg not in skip]
 
     def execute_tool(description, *args):
         """Execute a checking tool with its arguments."""
@@ -92,18 +88,14 @@ def urls(url, order):
 
     if url:
         try:
-            rule, arguments = current_app.url_map.bind("localhost").match(
-                url, return_rule=True
-            )
+            rule, arguments = current_app.url_map.bind("localhost").match(url, return_rule=True)
             rows.append((rule.rule, rule.endpoint, arguments))
             column_length = 3
         except (NotFound, MethodNotAllowed) as e:
             rows.append(("<{}>".format(e), None, None))
             column_length = 1
     else:
-        rules = sorted(
-            current_app.url_map.iter_rules(), key=lambda rule: getattr(rule, order)
-        )
+        rules = sorted(current_app.url_map.iter_rules(), key=lambda rule: getattr(rule, order))
         for rule in rules:
             rows.append((rule.rule, rule.endpoint, None))
         column_length = 2

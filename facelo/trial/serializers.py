@@ -18,9 +18,7 @@ class TrialSchema(Schema):
     @validates_schema
     def validate_numbers(self, data, **kwargs):
         if data["judge_age_min"] >= data["judge_age_max"]:
-            raise ValidationError(
-                "The minimum judge age must be lower than the maximum judge age."
-            )
+            raise ValidationError("The minimum judge age must be lower than the maximum judge age.")
 
 
 trial_schema = TrialSchema()

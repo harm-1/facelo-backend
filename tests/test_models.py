@@ -44,15 +44,9 @@ class TestUser:
     def test_relations(self, user, image):
         assert image in user.images
 
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'trials' expected to delete:"
-    )
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'images' expected to delete:"
-    )
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'users' expected to delete:"
-    )
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
     def test_delete(self, user, image):
         user.delete()
         assert Image.get_by_id(image.id) == None
@@ -82,12 +76,8 @@ class TestImage:
         assert image.user == user
         assert trial in image.trials
 
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'trials' expected to delete:"
-    )
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'images' expected to delete:"
-    )
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
     def test_delete(self, user, image, trial):
         image.delete()
         assert image not in user.images
@@ -110,9 +100,7 @@ class TestTrial:
         assert trial.question == question
         assert challenge in trial.challenges
 
-    @pytest.mark.filterwarnings(
-        "ignore:DELETE statement on table 'trials' expected to delete:"
-    )
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
     def test_delete(self, image, trial, challenge, question):
         trial.delete()
         assert trial not in image.trials

@@ -72,6 +72,8 @@ class ImageFactory(BaseFactory):
 def lazy_images():
     while True:
         yield choice(Image.query.all())
+        # for image in Image.query.all():
+        #     yield image
 
 
 class QuestionFactory(BaseFactory):

@@ -21,7 +21,7 @@ def header(token):
     return {"Authorization": "Bearer {}".format(token)}
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def app():
     """An application for the tests."""
     _app = create_app(TestConfig)
@@ -37,10 +37,22 @@ def app():
     ctx.pop()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def client(app):
     return app.test_client()
 
+
+# @pytest.fixture(autouse=True)
+# def cleanup(app):
+#     yield None
+#     import facelo
+#     from facelo.challenge.generate import random_trials, random_trial_generator
+#     try:
+#         while next(random_trials):
+#             pass
+#     except StopIteration:
+#         pass
+#     facelo.challenge.generate.random_trials = random_trial_generator()
 
 # @pytest.fixture(scope='class')
 @pytest.fixture()

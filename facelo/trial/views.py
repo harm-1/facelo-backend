@@ -24,9 +24,7 @@ def get_trials(image_id):
 @jwt_required()
 @marshal_with(trial_schema)
 def get_trial(image_id, trial_id):
-    return (
-        Image.query.filter_by(id=image_id).first().query.filter_by(id=trial_id).first()
-    )
+    return Image.query.filter_by(id=image_id).first().query.filter_by(id=trial_id).first()
 
 
 @blueprint.route("/images/<image_id>/trials/<question_id>", methods=["POST"])
@@ -44,8 +42,6 @@ def create_trial(image_id, question_id, **kwargs):
 @use_kwargs(trial_schema)
 @marshal_with(trial_schema)
 def update_trial(image_id, trial_id, **kwargs):
-    trial = (
-        Image.query.filter_by(id=image_id).first().query.filter_by(id=trial_id).first()
-    )
+    trial = Image.query.filter_by(id=image_id).first().query.filter_by(id=trial_id).first()
     trial.update(**kwargs)
     return trial

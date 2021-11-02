@@ -19,6 +19,7 @@ pytest = "*"
 factory_boy = "*"
 flake8 = "*"
 isort = "*"
+monkeytype = "*"
 
 [requires]
 python_version = "*"
