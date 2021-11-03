@@ -11,7 +11,7 @@ from facelo.exceptions import (
     USER_PASSWORD_INCORRECT,
 )
 
-from .factories import UserFactory
+from factories import UserFactory
 
 
 @pytest.fixture

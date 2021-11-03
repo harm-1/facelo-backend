@@ -33,7 +33,7 @@ class TestUser:
         assert user.gender != None
         assert user.sexual_preference != None
         assert user.password
-        assert user.karma
+        assert user.karma != None
 
     @pytest.mark.parametrize("user_dict", [{"password": "foobarbaz123"}], indirect=True)
     def test_check_password(self, user_dict, user):

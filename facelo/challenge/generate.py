@@ -19,12 +19,15 @@ def random_trial_generator():
     if Trial.query.count() == 0:
         return None
     while True:
-        for trial in Trial.query.order_by(sql_random()).limit(5).all():
+        trials = Trial.query.order_by(sql_random()).limit(2).all()
+        # breakpoint()
+        for trial in trials:
             yield trial
 
 random_trials = random_trial_generator()
 
 
+# TODO filter for trials of the user itself
 def generate_challenges(to_create: dict[int, int], completed: list[Challenge]) -> list[Challenge]:
     # I need to check that I dont send the same ones everytime
     # I think I only dont want to send the same ones in the newly created with respect to the last 50.
@@ -70,9 +73,6 @@ def generate_challenges(to_create: dict[int, int], completed: list[Challenge]) -
 
 def gen_chall_data_random(size: int) -> list[dict[str, int]]:
     """Returns a list with dictionaries with random trials. From that dictionary a challenge can be generated. If requested number of challenges cant be generated, the maximum possible will be returned."""
-    if Trial.query.count() < 5:
-        size = min(len(list(combinations(Trial.query.all(), 2))), size)
-
     generated = []
     while len(generated) < size:
         trial_1, trial_2 = next(random_trials), next(random_trials)

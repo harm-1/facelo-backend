@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Click commands."""
 import os
-import sys
 from glob import glob
 from subprocess import call
 
@@ -13,8 +12,7 @@ from werkzeug.exceptions import MethodNotAllowed, NotFound
 from facelo.database import db as _db
 from facelo.user.models import User
 
-sys.path.append("..")
-from tests.factories import (
+from factories import (
     ChallengeFactory,
     ImageFactory,
     QuestionFactory,

@@ -8,17 +8,13 @@ from facelo.app import create_app
 from facelo.database import db as _db
 from facelo.settings import TestConfig
 
-from .factories import (
+from factories import (
     ChallengeFactory,
     ImageFactory,
     QuestionFactory,
     TrialFactory,
     UserFactory,
 )
-
-
-def header(token):
-    return {"Authorization": "Bearer {}".format(token)}
 
 
 @pytest.fixture(scope="function")
@@ -47,6 +43,7 @@ def cleanup(app):
     yield None
     from facelo.challenge import generate
     from importlib import reload
+    # This is done to reset the random_trials variable
     generate = reload(generate)
 
 

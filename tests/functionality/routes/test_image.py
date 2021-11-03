@@ -4,8 +4,8 @@ import factory
 import pytest
 from flask import url_for
 
-from .conftest import header
-from .factories import ImageFactory
+from conftest import header
+from factories import ImageFactory
 
 
 @pytest.fixture
