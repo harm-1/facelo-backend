@@ -146,10 +146,8 @@ def seed(users, images, trials, questions, challenges, email, password):
 
     print("seeding database")
     assert trials <= images * questions
-    print(
-        f"creating {users} users, {images} images, {trials} trials, "
-        f"{questions} questions, {challenges} challenges"
-    )
+    print(f"creating {users} users, {images} images, {trials} trials, "
+          f"{questions} questions, {challenges} challenges")
     c_user = UserFactory(email=email, password=password)
     c_users = [c_user] + UserFactory.create_batch(size=users - 1)
     c_images = ImageFactory.create_batch(size=images)
@@ -157,7 +155,5 @@ def seed(users, images, trials, questions, challenges, email, password):
     c_trials = TrialFactory.create_batch(size=trials)
     c_challenges = ChallengeFactory.create_batch(size=challenges)
 
-    print(
-        f"created {len(c_users)} users, {len(c_images)} images, {len(c_trials)} trials, "
-        f"{len(c_questions)} questions, {len(c_challenges)} challenges"
-    )
+    print(f"created {len(c_users)} users, {len(c_images)} images, {len(c_trials)} trials, "
+          f"{len(c_questions)} questions, {len(c_challenges)} challenges")

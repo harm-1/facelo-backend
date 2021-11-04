@@ -39,6 +39,7 @@ class UserFactory(BaseFactory):
     gender = Faker("random_int", min=0, max=2)
     sexual_preference = Faker("random_int", min=0, max=7)
     karma = Faker("random_int", min=0, max=300)
+
     # token = PostGeneration(lambda obj, create, extracted, **kwargs: obj.create_access_token()
     #                        if hasattr(obj, 'create_access_token') else None)
     # token = PostGenerationMethodCall('create_access_token')

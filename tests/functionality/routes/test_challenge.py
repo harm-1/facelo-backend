@@ -7,6 +7,7 @@ from itertools import combinations
 
 from conftest import header
 
+
 @pytest.fixture
 def get_challenges(client, question, user):
     resp = client.get(
@@ -35,7 +36,7 @@ def get_challenges(client, question, user):
 
 @pytest.mark.usefixtures("db")
 class TestBig:
-    
+
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
     @pytest.mark.parametrize(
         "users, images, trials, questions, challenges",
@@ -140,13 +141,10 @@ class TestBig:
         indirect=True,
     )
     def test_one_user(self, client, challenges, user, trials, question):
-        resp = client.get(
-            url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token)
-        )
+        resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
+                          headers=header(user.token))
         assert type(resp.json) == list
         assert len(resp.json) == 0
-
 
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
     @pytest.mark.parametrize(
@@ -155,18 +153,17 @@ class TestBig:
         indirect=True,
     )
     def test_few_trials(self, client, users, challenges, user, trials, question):
-        resp = client.get(
-            url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token))
+        resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
+                          headers=header(user.token))
 
-        user_trials_dict = {_user:0 for _user in users}
+        user_trials_dict = {_user: 0 for _user in users}
         for _trial in trials:
             user_trials_dict[_trial.image.user] += 1
 
         possible_challenges_count = 0
         for _user in user_trials_dict:
             _trials_count = user_trials_dict[_user]
-            possible_challenges_count += _trials_count * (len(trials)-_trials_count)
+            possible_challenges_count += _trials_count * (len(trials) - _trials_count)
 
         assert type(resp.json) == list
-        assert len(resp.json) == possible_challenges_count/2
+        assert len(resp.json) == possible_challenges_count / 2

@@ -1,0 +1,9 @@
+[tool.pytest.ini_options]
+minversion = "6.0"
+testpaths = [
+    "tests",
+]
+
+[tool.yapf]
+based_on_style = "google"
+column_limit = 100

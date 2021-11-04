@@ -54,12 +54,8 @@ def put_challenges(*challenges, **kwargs):
 
 
 def get_latest_challenges(question: Question, size=62) -> list[Challenge]:
-    latest = (
-        Challenge.query.filter_by(judge=current_user, question_id=question.id)
-        .order_by(Challenge.id.desc())
-        .limit(size)
-        .all()
-    )
+    latest = (Challenge.query.filter_by(judge=current_user, question_id=question.id).order_by(
+        Challenge.id.desc()).limit(size).all())
     return latest
 
 
@@ -103,7 +99,6 @@ def create_challenges(generated: list[dict[str, int]], question: Question):
                 question=question,
                 winner=gen_sample["trial_1"],
                 loser=gen_sample["trial_2"],
-            )
-        )
+            ))
     db.session.commit()
     return created

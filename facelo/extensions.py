@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Extensions module. Each extension is initialized in the app factory located in app.py."""
 
-
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
@@ -43,7 +42,6 @@ db = SQLAlchemy(model_class=CRUDMixin)
 cors = CORS()
 migrate = Migrate()
 
-
 from facelo.user.models import User  # noqa
 from facelo.challenge.models import Challenge
 from facelo.image.models import Image
@@ -60,8 +58,7 @@ def user_identity_lookup(user: User) -> int:
 
 
 @jwt.user_lookup_loader
-def user_lookup_callback(
-    _jwt_header: Dict[str, str], jwt_data: Dict[str, Union[bool, int, str]]
-) -> User:
+def user_lookup_callback(_jwt_header: Dict[str, str], jwt_data: Dict[str, Union[bool, int,
+                                                                                str]]) -> User:
     identity = jwt_data["sub"]
     return User.get_by_id(identity)

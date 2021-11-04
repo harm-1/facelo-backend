@@ -54,6 +54,7 @@ class TestUser:
 
 @pytest.mark.usefixtures("db")
 class TestImage:
+
     def test_get_by_id(self, image):
         retrieved = Image.get_by_id(image.id)
         assert retrieved == image
@@ -86,6 +87,7 @@ class TestImage:
 
 @pytest.mark.usefixtures("db")
 class TestTrial:
+
     def test_get_by_id(self, trial):
         retrieved = Trial.get_by_id(trial.id)
         assert retrieved == trial
@@ -111,6 +113,7 @@ class TestTrial:
 
 @pytest.mark.usefixtures("db")
 class TestQuestion:
+
     def test_get_by_id(self, question):
         retrieved = Question.get_by_id(question.id)
         assert retrieved == question
@@ -126,6 +129,7 @@ class TestQuestion:
 
 @pytest.mark.usefixtures("db")
 class TestChallenge:
+
     def test_get_by_id(self, challenge):
         retrieved = Challenge.get_by_id(challenge.id)
         assert retrieved == challenge

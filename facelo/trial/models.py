@@ -23,7 +23,8 @@ class Trial(SurrogatePK, Model):
     # This cant back_populate because there is a undefined winner and loser
     challenges = relationship(
         "Challenge",
-        primaryjoin="or_(Trial.id==Challenge.winner_id," "Trial.id==Challenge.loser_id)",
+        primaryjoin="or_(Trial.id==Challenge.winner_id,"
+        "Trial.id==Challenge.loser_id)",
     )
 
     # def __repr__(self):

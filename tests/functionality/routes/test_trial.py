@@ -18,10 +18,10 @@ def trial_dict():
 
 @pytest.mark.usefixtures("db")
 class TestTrial:
+
     def test_get_trials(self, client, user, image, trial):
-        resp = client.get(
-            url_for("trial.get_trials", image_id=image.id), headers=header(user.token)
-        )
+        resp = client.get(url_for("trial.get_trials", image_id=image.id),
+                          headers=header(user.token))
         assert isinstance(resp.json, list)
 
     def test_get_trial(self, client, user, image, trial):

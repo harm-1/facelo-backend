@@ -50,6 +50,7 @@ def register_blueprints(app: Flask) -> None:
 
 
 def register_errorhandlers(app: Flask) -> None:
+
     def errorhandler(error):
         response = error.to_json()
         response.status_code = error.status_code

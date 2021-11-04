@@ -22,6 +22,7 @@ def register_user(client, user_dict):
 
 @pytest.mark.usefixtures("db")
 class TestAuthenticate:
+
     def test_register_user(self, user_dict, register_user):
         assert register_user.json["email"] == user_dict["email"]
         assert register_user.json["token"] != "None"
@@ -39,16 +40,25 @@ class TestAuthenticate:
         assert resp.json["token"] != ""
 
     # fmt: off
-    @pytest.mark.parametrize(
-        "user_dict", [{"email": "foo@bar.com", "password": "foobar"}], indirect=True)
-    @pytest.mark.parametrize(
-        "credentials, code",
-        [({"email": "foo@bar.com", "password": "foobar"}, 200),
-         ({"email": "bar@foo.com", "password": "foobar"}, 404),
-         ({"email": "foo@bar.com", "password": "barfoo"}, 401)])
+    @pytest.mark.parametrize("user_dict", [{
+        "email": "foo@bar.com",
+        "password": "foobar"
+    }],
+                             indirect=True)
+    @pytest.mark.parametrize("credentials, code", [({
+        "email": "foo@bar.com",
+        "password": "foobar"
+    }, 200), ({
+        "email": "bar@foo.com",
+        "password": "foobar"
+    }, 404), ({
+        "email": "foo@bar.com",
+        "password": "barfoo"
+    }, 401)])
     def test_login_response_codes(self, client, register_user, credentials, code):
         resp = client.post(url_for("user.login_user"), json=credentials)
         assert resp.status_code == code
+
     # fmt: on
 
     def test_get_user(self, client, user_dict, register_user):

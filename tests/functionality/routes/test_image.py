@@ -25,6 +25,7 @@ def upload_image(client, image_dict, user):
 
 @pytest.mark.usefixtures("db")
 class TestImage:
+
     def test_get_images(self, client, user, image):
         resp = client.get(url_for("image.get_images"), headers=header(user.token))
         assert isinstance(resp.json, list)

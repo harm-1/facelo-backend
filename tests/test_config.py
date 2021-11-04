@@ -9,7 +9,6 @@ from facelo.settings import DevConfig, ProdConfig
 #     assert app.config['ENV'] == 'production'
 #     assert not app.config['DEBUG']
 
-
 # def test_dev_config():
 #     """Development config."""
 #     app = create_app(DevConfig)

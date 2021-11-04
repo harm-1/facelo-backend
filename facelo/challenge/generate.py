@@ -14,6 +14,7 @@ from facelo.definitions import (
     CHALLENGE_TYPE_TRIANGLE,
 )
 
+
 # TODO should be checked for lower than a number of hidden votes, but will refactor also probably
 def random_trial_generator():
     if Trial.query.count() == 0:
@@ -23,6 +24,7 @@ def random_trial_generator():
         # breakpoint()
         for trial in trials:
             yield trial
+
 
 random_trials = random_trial_generator()
 
@@ -39,13 +41,9 @@ def generate_challenges(to_create: dict[int, int], completed: list[Challenge]) -
     # TODO test
     # TODO this can be improved
     for combo in combinations(generated, 2):
-        if (
-            combo[0]["trial_1"] == combo[1]["trial_1"]
-            and combo[0]["trial_2"] == combo[1]["trial_2"]
-        ) or (
-            combo[0]["trial_1"] == combo[1]["trial_2"]
-            and combo[0]["trial_2"] == combo[1]["trial_1"]
-        ):
+        if (combo[0]["trial_1"] == combo[1]["trial_1"] and combo[0]["trial_2"]
+                == combo[1]["trial_2"]) or (combo[0]["trial_1"] == combo[1]["trial_2"] and
+                                            combo[0]["trial_2"] == combo[1]["trial_1"]):
             # Maximum 1 of the combo needs to remain, this is not straightforward.
             if combo[0] in generated:
                 generated.remove(combo[0])
@@ -54,18 +52,10 @@ def generate_challenges(to_create: dict[int, int], completed: list[Challenge]) -
     # TODO test this
     for chall in completed:
         generated[:] = [
-            gen_sample
-            for gen_sample in generated
-            if not (
-                (
-                    gen_sample["trial_1"] == chall.winner_id
-                    and gen_sample["trial_2"] == chall.loser_id
-                )
-                or (
-                    gen_sample["trial_1"] == chall.loser_id
-                    and gen_sample["trial_2"] == chall.winner_id
-                )
-            )
+            gen_sample for gen_sample in generated
+            if not ((gen_sample["trial_1"] == chall.winner_id and gen_sample["trial_2"] ==
+                     chall.loser_id) or (gen_sample["trial_1"] == chall.loser_id and
+                                         gen_sample["trial_2"] == chall.winner_id))
         ]
     shuffle(generated)
     return generated
@@ -87,9 +77,8 @@ def gen_chall_data_sametrial(size: int, completed: list[Challenge]) -> list[dict
     if random_trials == None or len(completed) == 0:
         return []
 
-    same_trials = [chall.winner for chall in completed if chall.winner] + [
-        chall.loser for chall in completed if chall.loser
-    ]
+    same_trials = [chall.winner for chall in completed if chall.winner
+                  ] + [chall.loser for chall in completed if chall.loser]
 
     generated = []
     while len(generated) < size:
@@ -127,13 +116,17 @@ def gen_chall_data_triangle(size: int, completed: list[Challenge]) -> list[dict[
 
         if winner.image.user != loser.image.user:
             if choice([True, False]):
-                generated.append(
-                    {"type": CHALLENGE_TYPE_RANDOM, "trial_1": winner, "trial_2": loser}
-                )
+                generated.append({
+                    "type": CHALLENGE_TYPE_RANDOM,
+                    "trial_1": winner,
+                    "trial_2": loser
+                })
             else:
-                generated.append(
-                    {"type": CHALLENGE_TYPE_RANDOM, "trial_1": loser, "trial_2": winner}
-                )
+                generated.append({
+                    "type": CHALLENGE_TYPE_RANDOM,
+                    "trial_1": loser,
+                    "trial_2": winner
+                })
 
         if len(generated) == size:
             break

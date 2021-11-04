@@ -9,6 +9,7 @@ from factories import QuestionFactory
 
 @pytest.mark.usefixtures("db")
 class TestQuestion:
+
     def test_get_questions(self, client, user, question):
         resp = client.get(url_for("question.get_questions"), headers=header(user.token))
         assert isinstance(resp.json, list)
