@@ -4,16 +4,15 @@ import datetime
 from random import choice
 
 import factory
-from factory import Faker, LazyAttribute, PostGeneration, SubFactory
-from factory.alchemy import SQLAlchemyModelFactory
-from flask_jwt_extended import create_access_token
-
 from facelo.challenge.models import Challenge
 from facelo.database import db
 from facelo.image.models import Image
 from facelo.question.models import Question
 from facelo.trial.models import Trial
 from facelo.user.models import User
+from factory import Faker, LazyAttribute, PostGeneration, SubFactory
+from factory.alchemy import SQLAlchemyModelFactory
+from flask_jwt_extended import create_access_token
 
 
 class BaseFactory(SQLAlchemyModelFactory):

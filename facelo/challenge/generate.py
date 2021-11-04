@@ -3,16 +3,14 @@
 This file contains code for generating challenges. A generated challenge is a dict that has two Trials and a type.
 """
 
-from sqlalchemy.sql.functions import random as sql_random
-from facelo.trial.models import Trial
-from facelo.challenge.models import Challenge
-from random import choice, shuffle
 from itertools import combinations
-from facelo.definitions import (
-    CHALLENGE_TYPE_RANDOM,
-    CHALLENGE_TYPE_SAMETRIAL,
-    CHALLENGE_TYPE_TRIANGLE,
-)
+from random import choice, shuffle
+
+from facelo.challenge.models import Challenge
+from facelo.constants import (CHALLENGE_TYPE_RANDOM, CHALLENGE_TYPE_SAMETRIAL,
+                              CHALLENGE_TYPE_TRIANGLE)
+from facelo.trial.models import Trial
+from sqlalchemy.sql.functions import random as sql_random
 
 
 # TODO should be checked for lower than a number of hidden votes, but will refactor also probably

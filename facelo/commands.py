@@ -5,20 +5,13 @@ from glob import glob
 from subprocess import call
 
 import click
+from facelo.database import db as _db
+from facelo.user.models import User
+from factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                       TrialFactory, UserFactory)
 from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.exceptions import MethodNotAllowed, NotFound
-
-from facelo.database import db as _db
-from facelo.user.models import User
-
-from factories import (
-    ChallengeFactory,
-    ImageFactory,
-    QuestionFactory,
-    TrialFactory,
-    UserFactory,
-)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.join(HERE, os.pardir)

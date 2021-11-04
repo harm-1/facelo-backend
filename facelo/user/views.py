@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 """User views."""
+from facelo.database import db
+from facelo.exceptions import InvalidUsage
 from flask import Blueprint, request
 from flask_apispec import marshal_with, use_kwargs
 from flask_jwt_extended import create_access_token, current_user, jwt_required
 from sqlalchemy.exc import IntegrityError
-
-from facelo.database import db
-from facelo.exceptions import InvalidUsage
 
 from .models import User
 from .serializers import user_schema

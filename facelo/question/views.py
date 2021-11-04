@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
+from facelo.database import db
 from flask import Blueprint, jsonify
 from flask_apispec import marshal_with, use_kwargs
 from flask_jwt_extended import current_user, jwt_required
-
-from facelo.database import db
 
 from .models import Question
 from .serializers import question_schema, question_schemas

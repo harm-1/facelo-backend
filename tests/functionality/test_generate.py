@@ -1,5 +1,4 @@
 import pytest
-
 from facelo.challenge.generate import gen_chall_data_random
 
 

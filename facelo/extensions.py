@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 """Extensions module. Each extension is initialized in the app factory located in app.py."""
 
+from typing import Optional, Union
+
 from flask_bcrypt import Bcrypt
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import Model, SQLAlchemy
-from typing import Optional, Union
 
 
 class CRUDMixin(Model):
@@ -42,12 +43,13 @@ db = SQLAlchemy(model_class=CRUDMixin)
 cors = CORS()
 migrate = Migrate()
 
-from facelo.user.models import User  # noqa
+from typing import Dict, Optional, Union
+
 from facelo.challenge.models import Challenge
 from facelo.image.models import Image
 from facelo.question.models import Question
 from facelo.trial.models import Trial
-from typing import Dict, Optional, Union
+from facelo.user.models import User  # noqa
 
 jwt = JWTManager()
 

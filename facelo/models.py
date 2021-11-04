@@ -2,7 +2,8 @@
 """models."""
 import datetime as dt
 
-from database import Column, Model, SurrogatePK, db, reference_col, relationship
+from database import (Column, Model, SurrogatePK, db, reference_col,
+                      relationship)
 from sqlalchemy.dialects.mysql import TINYINT
 
 

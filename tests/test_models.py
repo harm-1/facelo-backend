@@ -3,7 +3,6 @@
 import datetime as dt
 
 import pytest
-
 from facelo.challenge.models import Challenge
 from facelo.image.models import Image
 from facelo.question.models import Question

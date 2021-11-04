@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
+from itertools import combinations
 from random import choice, sample
 
 import pytest
-from flask import url_for
-from itertools import combinations
-
 from conftest import header
+from flask import url_for
 
 
 @pytest.fixture

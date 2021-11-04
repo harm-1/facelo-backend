@@ -1,11 +1,6 @@
 import pytest
-from factories import (
-    ChallengeFactory,
-    ImageFactory,
-    QuestionFactory,
-    TrialFactory,
-    UserFactory,
-)
+from factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                       TrialFactory, UserFactory)
 
 
 @pytest.fixture

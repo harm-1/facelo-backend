@@ -2,25 +2,20 @@
 import datetime as dt
 from collections import Counter
 
+from facelo.database import db
 from flask import Blueprint, jsonify, request
 from flask_apispec import marshal_with, use_kwargs
 from flask_jwt_extended import current_user, jwt_required
 
-from facelo.database import db
-
+from .generate import generate_challenges
 from .models import Challenge
 from .serializers import challenge_schema, challenge_schemas
-from .generate import generate_challenges
 
 blueprint = Blueprint("challenge", __name__)
 
+from facelo.constants import (CHALLENGE_TYPE_RANDOM, CHALLENGE_TYPE_SAMETRIAL,
+                              CHALLENGE_TYPE_TRIANGLE)
 from facelo.question.models import Question
-
-from facelo.definitions import (
-    CHALLENGE_TYPE_RANDOM,
-    CHALLENGE_TYPE_SAMETRIAL,
-    CHALLENGE_TYPE_TRIANGLE,
-)
 
 
 @blueprint.route("/question/<question_id>/challenges", methods=["GET"])
