@@ -34,23 +34,17 @@ def get_challenges(client, question, user):
 
 
 @pytest.mark.usefixtures("db")
-class TestBig:
+class TestChallenge:
 
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(10, 20, 20, 1, 300)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)],
+                             indirect=True)
     def test_get_challenges(self, challenges, get_challenges):
         assert isinstance(get_challenges.json, list)
 
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(10, 20, 20, 1, 300)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)],
+                             indirect=True)
     def test_put_challenges(self, client, user, questions, challenges, get_challenges):
         resp1 = get_challenges
         for challenge in resp1.json:
@@ -59,21 +53,16 @@ class TestBig:
                 challenge["winner_id"] = challenge["loser_id"]
                 challenge["loser_id"] = challenge["winner_id"]
 
-        resp2 = client.put(
-            url_for("challenge.put_challenges", question_id=questions[0].id),
-            headers=header(user.token),
-            json={"challenges": resp1.json},
-        )
+        resp2 = client.put(url_for("challenge.put_challenges", question_id=questions[0].id),
+                           headers=header(user.token),
+                           json={"challenges": resp1.json})
 
         assert resp2.status_code == 204
 
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials':")
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(10, 20, 20, 1, 300)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)],
+                             indirect=True)
     def test_delete_trial(self, db, client, trials, challenges, question, user):
         # Choose 10 trials and delete those
         # for trial in sample(trials, 10):
@@ -82,31 +71,24 @@ class TestBig:
         for trial in sample(trials, 10):
             trial.delete()
 
-        resp = client.get(
-            url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token),
-        )
+        resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
+                          headers=header(user.token))
 
         assert isinstance(resp.json, list)
 
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials':")
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images':")
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(10, 20, 20, 1, 300)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)],
+                             indirect=True)
     def test_delete_image(self, db, client, images, challenges, question, user):
         # Choose 10 trials and delete those
         for image in sample(images, 10):
             image.delete(commit=False)
         db.session.commit()
 
-        resp = client.get(
-            url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token),
-        )
+        resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
+                          headers=header(user.token))
 
         assert isinstance(resp.json, list)
 
@@ -114,11 +96,8 @@ class TestBig:
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images':")
     @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users':")
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(10, 20, 20, 1, 300)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)],
+                             indirect=True)
     def test_delete_user(self, db, client, users, challenges, question, user):
         # Choose 10 trials and delete those
         for user_sample in sample(users, 5):
@@ -126,19 +105,17 @@ class TestBig:
                 user_sample.delete(commit=False)
         db.session.commit()
 
-        resp = client.get(
-            url_for("challenge.get_challenges", question_id=question.id),
-            headers=header(user.token),
-        )
+        resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
+                          headers=header(user.token))
 
         assert isinstance(resp.json, list)
 
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(1, 1, 0, 1, 0), (1, 1, 1, 1, 0), (1, 1, 2, 1, 0), (1, 1, 3, 1, 0)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(1, 1, 0, 1, 0),
+                                                                              (1, 1, 1, 1, 0),
+                                                                              (1, 1, 2, 1, 0),
+                                                                              (1, 1, 3, 1, 0)],
+                             indirect=True)
     def test_one_user(self, client, challenges, user, trials, question):
         resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
                           headers=header(user.token))
@@ -146,11 +123,11 @@ class TestBig:
         assert len(resp.json) == 0
 
     @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize(
-        "users, images, trials, questions, challenges",
-        [(0, 0, 0, 1, 0), (1, 1, 1, 1, 0), (2, 2, 2, 1, 0), (3, 3, 3, 1, 0)],
-        indirect=True,
-    )
+    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(0, 0, 0, 1, 0),
+                                                                              (1, 1, 1, 1, 0),
+                                                                              (2, 2, 2, 1, 0),
+                                                                              (3, 3, 3, 1, 0)],
+                             indirect=True)
     def test_few_trials(self, client, users, challenges, user, trials, question):
         resp = client.get(url_for("challenge.get_challenges", question_id=question.id),
                           headers=header(user.token))

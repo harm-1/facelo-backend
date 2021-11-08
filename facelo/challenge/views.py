@@ -16,6 +16,7 @@ blueprint = Blueprint("challenge", __name__)
 from facelo.constants import (CHALLENGE_TYPE_RANDOM, CHALLENGE_TYPE_SAMETRIAL,
                               CHALLENGE_TYPE_TRIANGLE)
 from facelo.question.models import Question
+from facelo.user.models import User
 
 
 @blueprint.route("/question/<question_id>/challenges", methods=["GET"])
@@ -23,7 +24,7 @@ from facelo.question.models import Question
 @marshal_with(challenge_schemas)
 def get_challenges(question_id: int):
     question = Question.get_by_id(question_id)
-    challenges = get_latest_challenges(question, 62)
+    challenges = get_recent_challenges(current_user, question, 62)
     completed, uncompleted = sort_by_completed(challenges)
 
     # check 12 unfullfilled
@@ -31,7 +32,7 @@ def get_challenges(question_id: int):
         return uncompleted
 
     to_create = generate_challenges_type(len(uncompleted))
-    generated = generate_challenges(to_create, completed)
+    generated = generate_challenges(to_create, uncompleted, completed)
     created = create_challenges(generated, question)
 
     return uncompleted + created
@@ -48,8 +49,8 @@ def put_challenges(*challenges, **kwargs):
     return ("", 204)
 
 
-def get_latest_challenges(question: Question, size=62) -> list[Challenge]:
-    latest = (Challenge.query.filter_by(judge=current_user, question_id=question.id).order_by(
+def get_recent_challenges(user: User, question: Question, size=62) -> list[Challenge]:
+    latest = (Challenge.query.filter_by(judge=user, question_id=question.id).order_by(
         Challenge.id.desc()).limit(size).all())
     return latest
 

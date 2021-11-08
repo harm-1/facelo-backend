@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
   libffi-dev \
   && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /backend
 RUN pip install pipenv
 COPY Pipfile Pipfile.lock ./
 RUN pipenv install --system --deploy
@@ -21,6 +21,9 @@ FROM builder AS production
 
 # ================================= DEVELOPMENT ================================
 FROM builder AS development
+
+RUN mkdir -p /home/harm/projects/Facelo
+RUN ln -s /backend /home/harm/projects/Facelo
 
 RUN pipenv install --dev --system --deploy
 EXPOSE 5000
