@@ -8,7 +8,7 @@ from random import choice, shuffle
 
 from facelo.challenge.models import Challenge
 from facelo.constants import (CHALLENGE_TYPE_RANDOM, CHALLENGE_TYPE_SAMETRIAL,
-                              CHALLENGE_TYPE_TRIANGLE)
+                              CHALLENGE_TYPE_TRIANGLE, RANDOM_TRIALS_COUNT)
 from facelo.trial.models import Trial
 from facelo.user.models import User
 from sqlalchemy.sql.functions import random as sql_random
@@ -18,7 +18,7 @@ def random_trial_generator():
     if Trial.query.count() == 0:
         return None
     while True:
-        trials = Trial.query.order_by(sql_random()).limit(100).all()
+        trials = Trial.query.order_by(sql_random()).limit(RANDOM_TRIALS_COUNT).all()
         for trial in trials:
             yield trial
 

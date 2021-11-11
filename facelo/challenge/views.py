@@ -14,7 +14,8 @@ from .serializers import challenge_schema, challenge_schemas
 blueprint = Blueprint("challenge", __name__)
 
 from facelo.constants import (CHALLENGE_TYPE_RANDOM, CHALLENGE_TYPE_SAMETRIAL,
-                              CHALLENGE_TYPE_TRIANGLE)
+                              CHALLENGE_TYPE_TRIANGLE, CHALLENGE_TYPE_DISTIBUTION,
+                              RECENT_CHALLENGES_COUNT)
 from facelo.question.models import Question
 from facelo.user.models import User
 
@@ -24,15 +25,14 @@ from facelo.user.models import User
 @marshal_with(challenge_schemas)
 def get_challenges(question_id: int):
     question = Question.get_by_id(question_id)
-    challenges = get_recent_challenges(current_user, question, 62)
+    challenges = get_recent_challenges(current_user, question, RECENT_CHALLENGES_COUNT)
     completed, uncompleted = sort_by_completed(challenges)
 
     # check 12 unfullfilled
     if len(uncompleted) > 12:
         return uncompleted
 
-    to_create = generate_challenges_type(len(uncompleted))
-    generated = generate_challenges(to_create, uncompleted, completed)
+    generated = generate_challenges(CHALLENGE_TYPE_DISTIBUTION, uncompleted, completed)
     created = create_challenges(generated, question)
 
     return uncompleted + created
@@ -64,23 +64,6 @@ def sort_by_completed(challenges: list[Challenge]):
         else:
             uncompleted.append(challenge)
     return completed, uncompleted
-
-
-def generate_challenges_type(uncompletedCount: int) -> dict[int, int]:
-    to_create = {}
-    if uncompletedCount < 6:
-        to_create = {
-            CHALLENGE_TYPE_RANDOM: 6,
-            CHALLENGE_TYPE_SAMETRIAL: 4,
-            CHALLENGE_TYPE_TRIANGLE: 2,
-        }
-    elif uncompletedCount < 12:
-        to_create = {
-            CHALLENGE_TYPE_RANDOM: 3,
-            CHALLENGE_TYPE_SAMETRIAL: 2,
-            CHALLENGE_TYPE_TRIANGLE: 1,
-        }
-    return to_create
 
 
 def create_challenges(generated: list[dict[str, int]], question: Question):
