@@ -19,7 +19,6 @@ blueprint = Blueprint("user", __name__)
 def register_user(**kwargs):
     try:
         user = User(**kwargs).save()
-        # user.token = create_access_token(identity=user)
         user.create_access_token()
     except IntegrityError:
         db.session.rollback()

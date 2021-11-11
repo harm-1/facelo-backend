@@ -7,8 +7,7 @@ from subprocess import call
 import click
 from facelo.database import db as _db
 from facelo.user.models import User
-from factories import (ChallengeFactory, ImageFactory, QuestionFactory,
-                       TrialFactory, UserFactory)
+from factories import (ChallengeFactory, ImageFactory, QuestionFactory, TrialFactory, UserFactory)
 from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.exceptions import MethodNotAllowed, NotFound
@@ -132,6 +131,8 @@ def seed(users, images, trials, questions, challenges, email, password):
     print("deleting database")
     assert current_app.debug
     assert current_app.env == "development"
+    # I need to have a look into this. I dont want to remove the database when I run the app in debug mode.
+    assert False
     _db.drop_all()
 
     print("creating database")
