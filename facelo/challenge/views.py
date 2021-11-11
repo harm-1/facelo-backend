@@ -32,7 +32,8 @@ def get_challenges(question_id: int):
     if len(uncompleted) > 12:
         return uncompleted
 
-    generated = generate_challenges(CHALLENGE_TYPE_DISTIBUTION, uncompleted, completed)
+    generated = generate_challenges(CHALLENGE_TYPE_DISTIBUTION, uncompleted, completed,
+                                    current_user)
     created = create_challenges(generated, question)
 
     return uncompleted + created

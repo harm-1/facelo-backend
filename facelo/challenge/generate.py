@@ -2,7 +2,8 @@
 """
 This file contains code for generating challenges. A generated challenge is a dict that has two Trials and a type.
 """
-
+from typing import Optional
+from collections.abc import Generator
 from itertools import combinations
 from random import choice, shuffle
 
@@ -14,7 +15,7 @@ from facelo.user.models import User
 from sqlalchemy.sql.functions import random as sql_random
 
 
-def random_trial_generator():
+def random_trial_generator() -> Optional[Generator[Trial, None, None]]:
     if Trial.query.count() == 0:
         return None
     while True:
