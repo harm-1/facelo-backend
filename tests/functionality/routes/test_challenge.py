@@ -16,23 +16,6 @@ def get_challenges(client, question, user):
     return resp
 
 
-"""
-    Ik moet meer tests hebben, en ik moet er ff over denken wat voor tests ik nodig heb.
-
-    - Ik moet testen voor het geval dat er weinig trials zijn.
-      Voor elke hoeveel onder een bepaalde waarde waarschijnlijk. Ik moet checken of er wel goede
-      challenges gemaakt worden voor het geval er kleine hoeveelheden trials beschibaar zijn.
-    - Ik moet testen of er dan niet dezelfde challenges worden gemaakt.
-      Maar misschien kan ik dan beter de functies zelf testen
-    - Ik denk dat ik helemaal niet dezelfde challenges wil (in korte tijd)
-      Dus ik moet daar een check voor maken bij het creeren.
-      Maar dat doe ik misschien wel als ik tests met weinig trials maak.
-      Hiervoor wil ik eigelijk denk ik ook functie testen maken.
-      testen die de filterfuncties testen om precies te zijn. 
-
-"""
-
-
 @pytest.mark.usefixtures("db")
 class TestChallenge:
 

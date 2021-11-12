@@ -68,7 +68,7 @@ class TestImage:
     def test_factory(self, image):
         """Test user factory."""
         assert image.id
-        assert image.image_url
+        assert image.filename
         assert image.created
         assert image.date_taken
 

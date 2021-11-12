@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
-"""Factories to help in tests."""
+"""factories to help in tests."""
 import datetime
+import uuid
+import os
+import shutil
 from random import choice
 
 import factory
@@ -10,16 +13,17 @@ from facelo.image.models import Image
 from facelo.question.models import Question
 from facelo.trial.models import Trial
 from facelo.user.models import User
-from factory import Faker, LazyAttribute, PostGeneration, SubFactory
+from factory import Faker, LazyFunction, LazyAttribute, PostGeneration, SubFactory
 from factory.alchemy import SQLAlchemyModelFactory
 from flask_jwt_extended import create_access_token
+from facelo.constants import ALLOWED_IMAGE_EXTENSIONS
 
 
 class BaseFactory(SQLAlchemyModelFactory):
-    """Base factory."""
+    """base factory."""
 
     class Meta:
-        """Factory configuration."""
+        """factory configuration."""
 
         abstract = True
         sqlalchemy_session = db.session
@@ -39,27 +43,42 @@ class UserFactory(BaseFactory):
     sexual_preference = Faker("random_int", min=0, max=7)
     karma = Faker("random_int", min=0, max=300)
 
-    # token = PostGeneration(lambda obj, create, extracted, **kwargs: obj.create_access_token()
-    #                        if hasattr(obj, 'create_access_token') else None)
-    # token = PostGenerationMethodCall('create_access_token')
+    # token = postgeneration(lambda obj, create, extracted, **kwargs: obj.create_access_token()
+    #                        if hasattr(obj, 'create_access_token') else none)
+    # token = postgenerationmethodcall('create_access_token')
 
     class Meta:
-        """Factory configuration."""
+        """factory configuration."""
 
         model = User
 
 
 def lazy_users():
-    """Turn `User.query.all()` into a lazily evaluated generator"""
+    """turn `User.query.all()` into a lazily evaluated generator"""
     while True:
         user_list = User.query.all()
-        yield choice(user_list) if user_list else None
+        yield choice(user_list) if user_list else none
+
+
+def save_image():
+    # i have to choose a random Image from example_Images and save that in testing_Images
+    random_image = '/backend/example_images/{}'.format(choice(os.listdir('example_images')))
+
+    # create filename
+    filename = '{}.{}'.format(uuid.uuid4().hex, choice(list(ALLOWED_IMAGE_EXTENSIONS)))
+    filepath = '/backend/testing_images/{}'.format(filename)
+
+    # save it
+    shutil.copy(random_image, filepath)
+
+    return filename
 
 
 class ImageFactory(BaseFactory):
     """Image factory."""
 
-    image_url = Faker("image_url")
+    # filename = Faker("file_name", category='Image')
+    filename = LazyFunction(save_image)
     date_taken = Faker("past_datetime")
     user = factory.Iterator(lazy_users())
 
@@ -72,14 +91,12 @@ class ImageFactory(BaseFactory):
 def lazy_images():
     while True:
         yield choice(Image.query.all())
-        # for image in Image.query.all():
-        #     yield image
 
 
 class QuestionFactory(BaseFactory):
     """Question factory."""
 
-    question = Faker("sentence", nb_words=10)
+    Question = Faker("sentence", nb_words=10)
 
     class Meta:
         """Factory configuration."""
@@ -98,7 +115,7 @@ class TrialFactory(BaseFactory):
     score = Faker("pyfloat", min_value=0, max_value=1)
     judge_age_min = Faker("random_int", min=1, max=50)
     judge_age_max = Faker("random_int", min=51, max=100)
-    image = factory.Iterator(lazy_images())
+    Image = factory.Iterator(lazy_images())
     question = factory.Iterator(lazy_questions())
 
     class Meta:

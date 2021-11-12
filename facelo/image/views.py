@@ -16,6 +16,7 @@ blueprint = Blueprint("image", __name__)
 @use_kwargs(image_schema)
 @marshal_with(image_schema)
 def upload_image(**kwargs):
+    breakpoint()
     return Image(user=current_user, **kwargs).save()
 
 
@@ -41,3 +42,8 @@ def update_image(image_id, **kwargs):
     image = Image.query.filter_by(id=image_id).first()
     image.update(**kwargs)
     return image
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

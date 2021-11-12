@@ -10,6 +10,8 @@ class Config(object):
     # SECRET_KEY = os.environ.get('CONDUIT_SECRET', 'secret-key')  # TODO: Change me
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
+    IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, os.environ.get('IMAGES_DIR')))
+
     # BCRYPT_LOG_ROUNDS = 13
     # DEBUG_TB_INTERCEPT_REDIRECTS = False
     # CACHE_TYPE = 'simple'  # Can be "memcached", "redis", etc.
@@ -39,13 +41,12 @@ class Config(object):
 class ProdConfig(Config):
     """Production configuration."""
 
-    # SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL',
-    # 'postgresql://localhost/example')
-
 
 class DevConfig(Config):
     """Development configuration."""
 
+    EXAMPLE_IMAGES_DIR = os.path.abspath(
+        os.path.join(Config.PROJECT_ROOT, os.environ.get('EXAMPLE_IMAGES_DIR')))
     SQLALCHEMY_DATABASE_URI = "{}://{}:{}@{}/{}".format(
         os.environ.get("DATABASE_DIALECT"),
         os.environ.get("MYSQL_USER"),
@@ -63,6 +64,8 @@ class TestConfig(Config):
 
     TESTING = True
     DEBUG = True
+    EXAMPLE_IMAGES_DIR = os.path.abspath(
+        os.path.join(Config.PROJECT_ROOT, os.environ.get('EXAMPLE_IMAGES_DIR')))
     SQLALCHEMY_DATABASE_URI = "{}://{}:{}@{}/{}".format(
         os.environ.get("DATABASE_DIALECT"),
         os.environ.get("MYSQL_USER"),
