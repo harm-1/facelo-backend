@@ -3,10 +3,12 @@
 
 import factory
 import pytest
+
 from facelo.app import create_app
 from facelo.database import db as _db
 from facelo.settings import TestConfig
-from factories import (ChallengeFactory, ImageFactory, QuestionFactory, TrialFactory, UserFactory)
+from factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                       TrialFactory, UserFactory)
 
 
 @pytest.fixture(scope="function")
@@ -35,6 +37,7 @@ def cleanup(app):
     yield None
     import os
     from importlib import reload
+
     from facelo.challenge import generate
 
     # This is done to reset the random_trials variable

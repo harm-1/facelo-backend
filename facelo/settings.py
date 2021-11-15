@@ -9,8 +9,10 @@ class Config(object):
 
     # SECRET_KEY = os.environ.get('CONDUIT_SECRET', 'secret-key')  # TODO: Change me
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
-    PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
-    IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, os.environ.get('IMAGES_DIR')))
+    # PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
+    BACKEND_DIR = os.path.abspath(os.path.join(APP_DIR, os.pardir))
+    PROJECT_DIR = os.path.abspath(os.path.join(BACKEND_DIR, os.pardir))
+    IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_DIR, os.environ.get('IMAGES_DIR')))
 
     # BCRYPT_LOG_ROUNDS = 13
     # DEBUG_TB_INTERCEPT_REDIRECTS = False
@@ -45,8 +47,11 @@ class ProdConfig(Config):
 class DevConfig(Config):
     """Development configuration."""
 
+    BACKEND_DIR = '/facelo/backend'
+    PROJECT_DIR = '/facelo'
+    IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_DIR, os.environ.get('IMAGES_DIR')))
     EXAMPLE_IMAGES_DIR = os.path.abspath(
-        os.path.join(Config.PROJECT_ROOT, os.environ.get('EXAMPLE_IMAGES_DIR')))
+        os.path.join(PROJECT_DIR, os.environ.get('EXAMPLE_IMAGES_DIR')))
     SQLALCHEMY_DATABASE_URI = "{}://{}:{}@{}/{}".format(
         os.environ.get("DATABASE_DIALECT"),
         os.environ.get("MYSQL_USER"),
@@ -64,8 +69,13 @@ class TestConfig(Config):
 
     TESTING = True
     DEBUG = True
+
+    BACKEND_DIR = '/facelo/backend'
+    PROJECT_DIR = '/facelo'
+    IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_DIR, os.environ.get('IMAGES_DIR')))
     EXAMPLE_IMAGES_DIR = os.path.abspath(
-        os.path.join(Config.PROJECT_ROOT, os.environ.get('EXAMPLE_IMAGES_DIR')))
+        os.path.join(PROJECT_DIR, os.environ.get('EXAMPLE_IMAGES_DIR')))
+
     SQLALCHEMY_DATABASE_URI = "{}://{}:{}@{}/{}".format(
         os.environ.get("DATABASE_DIALECT"),
         os.environ.get("MYSQL_USER"),

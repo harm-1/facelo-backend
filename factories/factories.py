@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """factories to help in tests."""
 import datetime
-import uuid
 import os
 import shutil
+import uuid
 from random import choice
 
 import factory
+from factory import (Faker, LazyAttribute, LazyFunction, PostGeneration,
+                     SubFactory)
+from factory.alchemy import SQLAlchemyModelFactory
+from flask import current_app
+from flask_jwt_extended import create_access_token
+
 from facelo.challenge.models import Challenge
+from facelo.constants import ALLOWED_IMAGE_EXTENSIONS
 from facelo.database import db
 from facelo.image.models import Image
+from facelo.image.views import load_image_as_string, save_image
 from facelo.question.models import Question
 from facelo.trial.models import Trial
 from facelo.user.models import User
-from factory import Faker, LazyFunction, LazyAttribute, PostGeneration, SubFactory
-from factory.alchemy import SQLAlchemyModelFactory
-from flask_jwt_extended import create_access_token
-from facelo.constants import ALLOWED_IMAGE_EXTENSIONS
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -57,28 +61,23 @@ def lazy_users():
     """turn `User.query.all()` into a lazily evaluated generator"""
     while True:
         user_list = User.query.all()
-        yield choice(user_list) if user_list else none
+        yield choice(user_list) if user_list else None
 
 
-def save_image():
-    # i have to choose a random Image from example_Images and save that in testing_Images
-    random_image = '/backend/example_images/{}'.format(choice(os.listdir('example_images')))
+def lazy_random_image():
 
-    # create filename
-    filename = '{}.{}'.format(uuid.uuid4().hex, choice(list(ALLOWED_IMAGE_EXTENSIONS)))
-    filepath = '/backend/testing_images/{}'.format(filename)
-
-    # save it
-    shutil.copy(random_image, filepath)
-
-    return filename
+    while True:
+        random_image_filename = '{}/{}'.format(current_app.config['EXAMPLE_IMAGES_DIR'],
+                                               choice(os.listdir('/facelo/example_images')))
+        random_image_str = load_image_as_string(random_image_filename)
+        filename = save_image(random_image_str, random_image_filename)
+        yield filename
 
 
 class ImageFactory(BaseFactory):
     """Image factory."""
 
-    # filename = Faker("file_name", category='Image')
-    filename = LazyFunction(save_image)
+    filename = LazyFunction(lazy_random_image)
     date_taken = Faker("past_datetime")
     user = factory.Iterator(lazy_users())
 
@@ -96,7 +95,7 @@ def lazy_images():
 class QuestionFactory(BaseFactory):
     """Question factory."""
 
-    Question = Faker("sentence", nb_words=10)
+    question = Faker("sentence", nb_words=10)
 
     class Meta:
         """Factory configuration."""
@@ -115,7 +114,7 @@ class TrialFactory(BaseFactory):
     score = Faker("pyfloat", min_value=0, max_value=1)
     judge_age_min = Faker("random_int", min=1, max=50)
     judge_age_max = Faker("random_int", min=51, max=100)
-    Image = factory.Iterator(lazy_images())
+    image = factory.Iterator(lazy_images())
     question = factory.Iterator(lazy_questions())
 
     class Meta:
