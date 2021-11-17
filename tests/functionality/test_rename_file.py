@@ -7,7 +7,6 @@ from factories.factories import lazy_random_image
 
 
 def test_save_image():
-    lazy_random_image_generator = lazy_random_image()
-    filename = next(lazy_random_image_generator)
+    filename = lazy_random_image()
 
     assert filename in os.listdir(current_app.config['IMAGES_DIR'])

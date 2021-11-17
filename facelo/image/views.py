@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 """User views."""
-import base64
-import uuid
 
 from flask import Blueprint, current_app, jsonify
 from flask_apispec import marshal_with, use_kwargs
 from flask_jwt_extended import current_user, jwt_required
 
 from facelo.database import db
+from facelo.utils import save_image
+from facelo import constants
 
 from .models import Image
 from .serializers import image_schema, image_schemas
@@ -19,8 +19,11 @@ blueprint = Blueprint("image", __name__)
 @jwt_required()
 @use_kwargs(image_schema)
 @marshal_with(image_schema)
-def upload_image(**kwargs):
-    return Image(user=current_user, **kwargs).save()
+def upload_image(filename, file, **kwargs):
+    if not allowed_file(filename):
+        return 'Unallowed filename', 406
+    filename = save_image(image=file, filename=filename)
+    return Image(user=current_user, filename=filename, **kwargs).save()
 
 
 @blueprint.route("/images/", methods=["GET"])
@@ -49,24 +52,4 @@ def update_image(image_id, **kwargs):
 
 def allowed_file(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-def save_image(image: str, filename: str):
-
-    filename = '{}.{}'.format(uuid.uuid4().hex, filename.rsplit('.', 1)[1])
-    filepath = '{}/{}'.format(current_app.config['IMAGES_DIR'], filename)
-
-    # TODO use werkzeug save
-    with open(filepath, "wb") as file:
-        file.write(base64.b64decode(image))
-
-    return filename
-
-
-def load_image_as_string(filename: str):
-
-    with open(filename, "rb") as image2string:
-        image_str = base64.b64encode(image2string.read())
-
-    return image_str
+           filename.rsplit('.', 1)[1].lower() in constants.ALLOWED_IMAGE_EXTENSIONS
