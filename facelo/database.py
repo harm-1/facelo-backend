@@ -4,7 +4,6 @@ from sqlalchemy import event
 from sqlalchemy.orm import relationship
 from sqlalchemy.util.langhelpers import symbol
 
-from .compat import basestring
 from .extensions import db
 
 # Alias common SQLAlchemy names
@@ -28,7 +27,7 @@ class SurrogatePK(object):
     def get_by_id(cls, record_id):
         """Get record by ID."""
         if any((
-                isinstance(record_id, basestring) and record_id.isdigit(),
+                isinstance(record_id, (str, bytes)) and record_id.isdigit(),
                 isinstance(record_id, (int, float)),
         ),):
             return cls.query.get(int(record_id))
