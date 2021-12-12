@@ -5,12 +5,14 @@ from glob import glob
 from subprocess import call
 
 import click
-from facelo.database import db as _db
-from facelo.user.models import User
-from factories import (ChallengeFactory, ImageFactory, QuestionFactory, TrialFactory, UserFactory)
 from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.exceptions import MethodNotAllowed, NotFound
+
+from facelo.database import db as _db
+from facelo.user.models import User
+from factories import (ChallengeFactory, ImageFactory, QuestionFactory,
+                       TrialFactory, UserFactory)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 PROJECT_ROOT = os.path.join(HERE, os.pardir)
@@ -119,11 +121,11 @@ def urls(url, order):
 
 
 @click.command()
-@click.option("-u", "--users", default=10, type=int)
-@click.option("-i", "--images", default=20, type=int)
-@click.option("-t", "--trials", default=20, type=int)
-@click.option("-q", "--questions", default=1, type=int)
-@click.option("-c", "--challenges", default=300, type=int)
+@click.option("-u", "--users", default=0, type=int)
+@click.option("-i", "--images", default=0, type=int)
+@click.option("-t", "--trials", default=0, type=int)
+@click.option("-q", "--questions", default=0, type=int)
+@click.option("-c", "--challenges", default=0, type=int)
 @click.option("-e", "--email", default="foo@bar.com", type=str, help="dummy user email")
 @click.option("-p", "--password", default="foobar", type=str, help="dummy user pw")
 @with_appcontext
@@ -142,8 +144,11 @@ def seed(users, images, trials, questions, challenges, email, password):
     assert trials <= images * questions
     print(f"creating {users} users, {images} images, {trials} trials, "
           f"{questions} questions, {challenges} challenges")
-    c_user = UserFactory(email=email, password=password)
-    c_users = [c_user] + UserFactory.create_batch(size=users - 1)
+
+    c_users = []
+    if users:
+        c_user = UserFactory(email=email, password=password)
+        c_users = [c_user] + UserFactory.create_batch(size=users - 1)
     c_images = ImageFactory.create_batch(size=images)
     c_questions = QuestionFactory.create_batch(size=questions)
     c_trials = TrialFactory.create_batch(size=trials)

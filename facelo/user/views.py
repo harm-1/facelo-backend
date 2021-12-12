@@ -18,7 +18,6 @@ blueprint = Blueprint("user", __name__)
 @use_kwargs(UserSchema())
 @marshal_with(UserSchema())
 def register_user(**kwargs):
-    # breakpoint()
     try:
         user = User(**kwargs).save()
         user.create_access_token()
