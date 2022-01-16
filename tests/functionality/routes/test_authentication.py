@@ -16,6 +16,11 @@ def register_dict(user_dict):
     result = dict(user_dict)
     result.pop('karma')
     result["birth_day"] = str(user_dict["birth_day"])
+
+    # My terms and condition is currently probably not what it should be
+    assert 'terms_accepted' not in user_dict
+    result['terms_accepted'] = "True"
+
     return result
 
 
@@ -69,8 +74,7 @@ class TestAuthenticate:
 
     def test_get_user(self, client, user_dict, register_user):
         token = str(register_user.json["token"])
-        resp = client.get(url_for("user.get_user"),
-                          headers={"Authorization": "Bearer {}".format(token)})
+        resp = client.get(url_for("user.get_user"), headers={"Authorization": "Bearer {}".format(token)})
         assert resp.json["email"] == user_dict["email"]
 
     def test_update_user(self, client, register_dict, register_user):

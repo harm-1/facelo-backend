@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 """Helper utilities and decorators."""
 import base64
-import uuid
 import os
+import uuid
 
 from flask import current_app
 

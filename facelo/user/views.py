@@ -6,6 +6,7 @@ from flask_jwt_extended import create_access_token, current_user, jwt_required
 from sqlalchemy.exc import IntegrityError
 
 from facelo.database import db
+from facelo.debug import wrap_bp
 from facelo.exceptions import InvalidUsage
 
 from .models import User
@@ -15,6 +16,7 @@ blueprint = Blueprint("user", __name__)
 
 
 @blueprint.route("/user", methods=["POST"])
+@wrap_bp
 @use_kwargs(UserSchema())
 @marshal_with(UserSchema())
 def register_user(**kwargs):

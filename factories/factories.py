@@ -8,7 +8,8 @@ import uuid
 from random import choice
 
 import factory
-from factory import (Faker, LazyAttribute, LazyFunction, PostGeneration, SubFactory)
+from factory import (Faker, LazyAttribute, LazyFunction, PostGeneration,
+                     SubFactory)
 from factory.alchemy import SQLAlchemyModelFactory
 from flask import current_app
 from flask_jwt_extended import create_access_token
@@ -46,6 +47,7 @@ class UserFactory(BaseFactory):
     gender = Faker("random_int", min=0, max=2)
     sexual_preference = Faker("random_int", min=0, max=7)
     karma = Faker("random_int", min=0, max=300)
+    # terms_accepted = True
 
     # token = postgeneration(lambda obj, create, extracted, **kwargs: obj.create_access_token()
     #                        if hasattr(obj, 'create_access_token') else none)
