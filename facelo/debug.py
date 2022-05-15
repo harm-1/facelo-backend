@@ -1,6 +1,7 @@
 from functools import wraps
 
 from flask import request
+from facelo.user.serializers import UserSchema
 
 
 def wrap_bp(func):
@@ -11,3 +12,6 @@ def wrap_bp(func):
         return func(*args, **kwargs)
 
     return newFunc
+
+
+# UserSchema().load(request.json)

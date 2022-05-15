@@ -16,7 +16,7 @@ blueprint = Blueprint("user", __name__)
 
 
 @blueprint.route("/user", methods=["POST"])
-@wrap_bp
+# @wrap_bp
 @use_kwargs(UserSchema())
 @marshal_with(UserSchema())
 def register_user(**kwargs):
