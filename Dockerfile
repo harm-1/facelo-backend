@@ -10,7 +10,7 @@ ENV PYTHONUNBUFFERED=1
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
-WORKDIR /facelo
+WORKDIR /facelo/backend
 EXPOSE 5000
 
 RUN apt-get update && apt-get install -y \
