@@ -20,6 +20,8 @@ factory_boy = "*"
 flake8 = "*"
 isort = "*"
 monkeytype = "*"
+setuptools = "*"
+wheel = "*"
 
 [requires]
 python_version = "*"
