@@ -47,6 +47,7 @@ class ProdConfig(Config):
 class DevConfig(Config):
     """Development configuration."""
 
+    ENV = 'development'
     BACKEND_DIR = '/facelo/backend'
     PROJECT_DIR = '/facelo'
     IMAGES_DIR = os.path.abspath(os.path.join(PROJECT_DIR, os.environ.get('IMAGES_DIR')))
@@ -68,7 +69,6 @@ class TestConfig(Config):
     """Test configuration."""
 
     TESTING = True
-    DEBUG = True
 
     BACKEND_DIR = '/facelo/backend'
     PROJECT_DIR = '/facelo'

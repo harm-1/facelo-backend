@@ -132,8 +132,9 @@ def urls(url, order):
 def seed(users, images, trials, questions, challenges, email, password):
     print("deleting database")
     assert current_app.debug
-    assert current_app.env == "development"
-    # I need to have a look into this. I dont want to remove the database when I run the app in debug mode.
+    assert current_app.config["ENV"] == "development"
+    # I need to have a look into this.
+    # I dont want to remove the database when I run the app in debug mode.
     assert os.environ.get("MYSQL_DATABASE") == 'facelo_testing'
     _db.drop_all()
 

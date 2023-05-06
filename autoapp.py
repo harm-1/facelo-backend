@@ -2,8 +2,10 @@
 """Create an application instance."""
 from facelo.app import create_app
 from facelo.settings import DevConfig, ProdConfig
-from flask.helpers import get_env
+import os
 
-CONFIG = DevConfig if get_env() == "development" else ProdConfig
+CONFIG = DevConfig if os.getenv('FLASK_ENV') == 'development' else ProdConfig
 
 app = create_app(CONFIG)
+
+
