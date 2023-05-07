@@ -29,8 +29,8 @@ RUN pip install pipenv
 # ================================= DEVELOPMENT ================================
 FROM base AS development
 
-RUN mkdir -p /home/harm/projects/Facelo
-RUN ln -s /facelo/backend /home/harm/projects/Facelo
+RUN mkdir -p /home/harm/projects/facelo
+RUN ln -s /facelo/backend /home/harm/projects/facelo
 
 CMD [ "flask", "run", "--host", "0.0.0.0" ]
 
