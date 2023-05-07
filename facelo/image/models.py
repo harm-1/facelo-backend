@@ -2,8 +2,7 @@
 """Image models."""
 import datetime as dt
 
-from facelo.database import (Column, Model, SurrogatePK, db, make_nonupdateable, reference_col,
-                             relationship)
+from facelo.database import (Column, Model, SurrogatePK, db, reference_col, relationship)
 from sqlalchemy.dialects.mysql import TINYINT
 
 
@@ -24,7 +23,3 @@ class Image(SurrogatePK, Model):
     def __repr__(self):
         """Represent instance as a unique string."""
         return "<Image({image_url!r})>".format(image_url=self.filename)
-
-
-make_nonupdateable(Image.filename)
-make_nonupdateable(Image.created)
