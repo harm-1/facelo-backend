@@ -31,6 +31,8 @@ def create_app(config_object=ProdConfig) -> Flask:
 
 def register_extensions(app: Flask) -> None:
     """Register Flask extensions."""
+    origins = app.config.get("CORS_ORIGIN_WHITELIST", "*")
+    cors.init_app(app, origins=origins)
     bcrypt.init_app(app)
     db.init_app(app)
     migrate.init_app(app, db)
@@ -39,8 +41,6 @@ def register_extensions(app: Flask) -> None:
 
 def register_blueprints(app: Flask) -> None:
     """Register Flask blueprints."""
-    origins = app.config.get("CORS_ORIGIN_WHITELIST", "*")
-    cors.init_app(user.views.blueprint, origins=origins)
 
     app.register_blueprint(user.views.blueprint)
     app.register_blueprint(image.views.blueprint)
