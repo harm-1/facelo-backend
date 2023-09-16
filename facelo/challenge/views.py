@@ -79,6 +79,7 @@ def create_challenges(generated: list[dict[str, int]], question: Question):
                 question=question,
                 winner=gen_sample["trial_1"],
                 loser=gen_sample["trial_2"],
-            ))
+            ).save()
+        )
     db.session.commit()
     return created
