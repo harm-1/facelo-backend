@@ -85,10 +85,14 @@ def gen_sametrial(size: int, completed: list[Challenge], user: User,
     same_trials = [chall.winner for chall in completed if chall.winner] \
         + [chall.loser for chall in completed if chall.loser]
 
+    if len(same_trials) == 0:
+        return []
+
     generated: list[list[Trial]] = []
     tries = 3
-    while len(generated) < size:
-        trials: list[list[Trial]] = sorted([next(random_trials), choice(same_trials)])
+    while len(generated) < size and tries > 0:
+        trials: list[list[Trial]] = sorted(
+            [next(random_trials), choice(same_trials)])
         if trials[0].image.user == trials[1].image.user or \
            trials[0].image.user == user or trials[1].image.user == user or \
            trials in not_in_filter or \
