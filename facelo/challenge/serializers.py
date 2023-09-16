@@ -1,6 +1,6 @@
 # coding: utf-8
 
-from marshmallow import Schema, fields, post_load, pre_load
+from marshmallow import (Schema, fields, pre_load)
 
 
 class ChallengeSchema(Schema):
@@ -16,7 +16,6 @@ class ChallengeSchema(Schema):
     @pre_load
     def load(self, data, pass_many=True, **kwargs):
         return data["challenges"]
-
 
 challenge_schema = ChallengeSchema()
 challenge_schemas = ChallengeSchema(many=True)

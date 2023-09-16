@@ -2,12 +2,14 @@
 """Challenge models."""
 import datetime as dt
 
-from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
-                             relationship)
 from flask_jwt_extended import get_current_user
 from sqlalchemy.dialects.mysql import TINYINT
 
+from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
+                             relationship)
 
+
+# TODO add check that winner and loser cant be the same trial
 class Challenge(SurrogatePK, Model):
 
     __tablename__ = "challenges"

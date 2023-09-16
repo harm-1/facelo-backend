@@ -43,9 +43,9 @@ class TestUser:
     def test_relations(self, user, image):
         assert image in user.images
 
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to delete:")
-    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to delete:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'trials' expected to del:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'images' expected to del:")
+    @pytest.mark.filterwarnings("ignore:DELETE statement on table 'users' expected to del:")
     def test_delete(self, user, image):
         user.delete()
         assert Image.get_by_id(image.id) == None

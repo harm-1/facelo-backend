@@ -2,6 +2,9 @@
 from marshmallow import Schema, fields, post_dump, post_load, pre_load
 
 
+# TODO there should be a different schema for user registering
+# Now it works, but im afraid it can be dangerous to use the same
+# schema for registering and getting a user
 class UserSchema(Schema):
     email = fields.Email(required=True)
     password = fields.Str(required=True, load_only=True)

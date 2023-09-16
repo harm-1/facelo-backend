@@ -5,9 +5,9 @@ from flask import Blueprint, current_app, jsonify
 from flask_apispec import marshal_with, use_kwargs
 from flask_jwt_extended import current_user, jwt_required
 
+from facelo import constants
 from facelo.database import db
 from facelo.utils import save_image
-from facelo import constants
 
 from .models import Image
 from .serializers import image_schema, image_schemas

@@ -6,7 +6,7 @@ testpaths = [
 
 [tool.yapf]
 based_on_style = "google"
-column_limit = 120
+column_limit = 79
 
 [tool.isort]
 skip = "facelo/app.py"
