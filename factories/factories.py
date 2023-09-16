@@ -1,27 +1,20 @@
 # -*- coding: utf-8 -*-
 """factories to help in tests."""
-import base64
 import datetime
-import os
-import shutil
-import uuid
-from random import choice
 
 import factory
-from factory import (Faker, LazyAttribute, LazyFunction, PostGeneration,
-                     SubFactory)
+from factory import Faker, LazyFunction
 from factory.alchemy import SQLAlchemyModelFactory
-from flask import current_app
-from flask_jwt_extended import create_access_token
 
 from facelo.challenge.models import Challenge
-from facelo.constants import ALLOWED_IMAGE_EXTENSIONS
 from facelo.database import db
 from facelo.image.models import Image
 from facelo.question.models import Question
 from facelo.trial.models import Trial
 from facelo.user.models import User
-from facelo.utils import _load_image_as_string, save_image
+
+from .utils import (lazy_images, lazy_questions, lazy_trials, lazy_users,
+                    random_image_filename)
 
 
 class BaseFactory(SQLAlchemyModelFactory):
@@ -59,37 +52,10 @@ class UserFactory(BaseFactory):
         model = User
 
 
-def lazy_users():
-    """turn `User.query.all()` into a lazily evaluated generator"""
-    while True:
-        user_list = User.query.all()
-        yield choice(user_list) if user_list else None
-
-
-# def lazy_random_image():
-
-#     while True:
-#         random_image_filename = '{}/{}'.format(current_app.config['EXAMPLE_IMAGES_DIR'],
-#                                                choice(os.listdir('/facelo/example_images')))
-#         random_image_str = load_image_as_string(random_image_filename)
-#         filename = save_image(random_image_str, random_image_filename)
-#         yield filename
-
-
-def lazy_random_image():
-
-    random_image_filename = choice(os.listdir('/facelo/example_images'))
-    random_image_filepath = '{}/{}'.format(current_app.config['EXAMPLE_IMAGES_DIR'],
-                                           random_image_filename)
-    random_image_str = _load_image_as_string(random_image_filepath)
-    filename = save_image(random_image_str, random_image_filename)
-    return filename
-
-
 class ImageFactory(BaseFactory):
     """Image factory."""
 
-    filename = LazyFunction(lazy_random_image)
+    filename = LazyFunction(random_image_filename)
     date_taken = Faker("past_datetime")
     user = factory.Iterator(lazy_users())
 
@@ -97,11 +63,6 @@ class ImageFactory(BaseFactory):
         """Factory configuration."""
 
         model = Image
-
-
-def lazy_images():
-    while True:
-        yield choice(Image.query.all())
 
 
 class QuestionFactory(BaseFactory):
@@ -113,11 +74,6 @@ class QuestionFactory(BaseFactory):
         """Factory configuration."""
 
         model = Question
-
-
-def lazy_questions():
-    while True:
-        yield choice(Question.query.all())
 
 
 class TrialFactory(BaseFactory):
@@ -133,15 +89,6 @@ class TrialFactory(BaseFactory):
         """Factory configuration."""
 
         model = Trial
-
-
-def lazy_trials():
-    curr = None
-    while True:
-        prev = curr
-        while prev == curr:
-            curr = choice(Trial.query.all())
-        yield curr
 
 
 class ChallengeFactory(BaseFactory):
