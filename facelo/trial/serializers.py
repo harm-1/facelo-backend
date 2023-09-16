@@ -9,10 +9,6 @@ class TrialSchema(Schema):
     judge_age_min = fields.Integer()
     judge_age_max = fields.Integer()
 
-    # TODO This somthing o not sure about
-    # The question id is dump only if when I create a trial, that I then send the
-    # question_id in the url. I can also send it in the json of course.
-    # It depends on how I want the route to be I guess
     question_id = fields.Integer(dump_only=True)
 
     @validates_schema

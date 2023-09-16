@@ -9,7 +9,7 @@ from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
                              relationship)
 
 
-# TODO add check that winner and loser cant be the same trial
+# TODO add challengers, remove completed
 class Challenge(SurrogatePK, Model):
 
     __tablename__ = "challenges"
@@ -25,7 +25,6 @@ class Challenge(SurrogatePK, Model):
     question = relationship("Question", back_populates="challenges")
 
     # The challenge has a many-to-one relationship with the judge.
-    # TODO Dit wordt later een andere tabel, maar ik laat het nu zo
     judge_id = reference_col("users", nullable=True)
     judge = relationship("User", back_populates="judged_challenges")
 

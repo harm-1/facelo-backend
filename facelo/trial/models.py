@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Image models."""
-from facelo.database import (Column, Model, SurrogatePK, db, reference_col, relationship)
+from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
+                             relationship)
 
 
 class Trial(SurrogatePK, Model):
@@ -27,7 +28,6 @@ class Trial(SurrogatePK, Model):
         "Trial.id==Challenge.loser_id)",
     )
 
-    # TODO what if one is deleted
     def __lt__(self, other):
         return self.id < other.id
 

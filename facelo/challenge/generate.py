@@ -16,9 +16,12 @@ from facelo.trial.models import Trial
 from facelo.user.models import User
 
 
-# TODO: this is stupid. A new generator will be created with every request
-# Its not efficient nor less complicated.
 def random_trial_generator() -> Optional[Generator[Trial, None, None]]:
+    """
+    When new challenges need to be created for an user,
+    we need to get multple random trials.
+    We use a generator because this way we only have to do one query.
+    """
     if Trial.query.count() == 0:
         return None
     while True:
