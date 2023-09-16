@@ -10,7 +10,7 @@ from factories import ImageFactory
 
 
 @pytest.fixture
-def image_dict():
+def image_dict(user):
     image_dict = factory.build(dict, FACTORY_CLASS=ImageFactory)
     image_dict['file'] = load_image_as_string(image_dict['filename'])
     del image_dict["user"]
@@ -20,7 +20,6 @@ def image_dict():
 @pytest.fixture
 def upload_image(client, image_dict, user):
     image_dict["date_taken"] = str(image_dict["date_taken"])
-
     resp = client.post(url_for("image.upload_image"), json=image_dict, headers=header(user.token))
     yield resp
 
