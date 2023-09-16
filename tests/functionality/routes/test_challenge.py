@@ -19,24 +19,34 @@ def get_challenges(client, question, user):
 @pytest.mark.usefixtures("db")
 class TestChallenge:
 
-    @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(3, 3, 3, 1, 0)], indirect=True)
-    def test_get_challenges(self, challenges, get_challenges):
+    @pytest.mark.usefixtures("db", "users", "images", "trials", "questions", "challenges")
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 10, 10, 1, 1)], indirect=True)
+    def test_get_challenges(self, get_challenges):
         assert isinstance(get_challenges.json, list)
+        if len(get_challenges.json) > 0:
+            assert isinstance(get_challenges.json[0]['id'], int)
+        else:
+            print("Warning, no challenges created, probably bad rng")
 
-    @pytest.mark.usefixtures("users", "images", "trials", "questions", "challenges")
-    @pytest.mark.parametrize("users, images, trials, questions, challenges", [(10, 20, 20, 1, 300)], indirect=True)
+    @pytest.mark.usefixtures("db", "users", "images", "trials", "questions", "challenges")
+    @pytest.mark.parametrize(
+        "users, images, trials, questions, challenges",
+        [(10, 20, 20, 1, 300)], indirect=True)
     def test_put_challenges(self, client, user, questions, challenges, get_challenges):
         # get_challenges gets the challenges, for each challenge a random winner is choses,
         # then the put is executed and the data will be send te the server.
         resp1 = get_challenges
+
         for challenge in resp1.json:
             del challenge["question_id"]
-            if choice([True, False]) == True:
+            if choice([True, False]):
                 challenge["winner_id"] = challenge["loser_id"]
                 challenge["loser_id"] = challenge["winner_id"]
 
-        resp2 = client.put(url_for("challenge.put_challenges", question_id=questions[0].id),
+        resp2 = client.put(url_for("challenge.put_challenges",
+                                   question_id=questions[0].id),
                            headers=header(user.token),
                            json={"challenges": resp1.json})
 
