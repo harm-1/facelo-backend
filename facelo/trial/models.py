@@ -5,6 +5,13 @@ from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
 
 
 class Trial(SurrogatePK, Model):
+    """
+    When the user uploads an image, they want to know if that
+    image does well for some question.
+    e.g. "Who looks better in this image"
+    So when a user wants to test a image for some question.
+    This Trial object is created.
+    """
 
     __tablename__ = "trials"
 
@@ -12,16 +19,12 @@ class Trial(SurrogatePK, Model):
     judge_age_min = Column(db.Integer)
     judge_age_max = Column(db.Integer)
 
-    # The trial has a many-to-one relationship with the image.
     image_id = reference_col("images", nullable=False)
     image = relationship("Image", back_populates="trials")
 
-    # The trial has a many-to-one relationship with the question.
     question_id = reference_col("questions", nullable=True)
     question = relationship("Question", back_populates="trials")
 
-    # The trial has a one-to-many relationship with the challenges.
-    # This cant back_populate because there is a undefined winner and loser
     challenges = relationship(
         "Challenge",
         primaryjoin="or_(Trial.id==Challenge.winner_id,"
@@ -30,7 +33,3 @@ class Trial(SurrogatePK, Model):
 
     def __lt__(self, other):
         return self.id < other.id
-
-    # def __repr__(self):
-    #     """Represent instance as a unique string."""
-    #     return '<Trial({image_url!r})>'.format(image_url=self.image_url)

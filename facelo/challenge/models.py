@@ -11,6 +11,11 @@ from facelo.database import (Column, Model, SurrogatePK, db, reference_col,
 
 # TODO add challengers, remove completed
 class Challenge(SurrogatePK, Model):
+    """
+    Images are uploaded and Trials are created for the questions that the user
+    wants to test their image for.
+    When Trials are tested against each other, Its called a challenge.
+    """
 
     __tablename__ = "challenges"
     judge_age = Column(db.Integer)
@@ -20,19 +25,15 @@ class Challenge(SurrogatePK, Model):
     loser_has_revealed = Column(db.Boolean, default=False)
     completed = Column(db.Boolean, default=False)
 
-    # The challenge has a many-to-one relationship with the question.
     question_id = reference_col("questions")
     question = relationship("Question", back_populates="challenges")
 
-    # The challenge has a many-to-one relationship with the judge.
     judge_id = reference_col("users", nullable=True)
     judge = relationship("User", back_populates="judged_challenges")
 
-    # The challenge has a many-to-one relationship with the winning trial.
     winner_id = reference_col("trials", nullable=True)
     winner = relationship("Trial", back_populates="challenges", foreign_keys=winner_id)
 
-    # The challenge has a many-to-one relationship with the losing trial.
     loser_id = reference_col("trials", nullable=True)
     loser = relationship("Trial", back_populates="challenges", foreign_keys=loser_id)
 
