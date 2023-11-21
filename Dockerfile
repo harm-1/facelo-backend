@@ -15,6 +15,7 @@ EXPOSE 5000
 
 RUN apt-get update && apt-get install -y \
   default-libmysqlclient-dev \
+  pkg-config \
   gcc \
   libffi-dev \
   && rm -rf /var/lib/apt/lists/*

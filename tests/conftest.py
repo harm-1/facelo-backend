@@ -108,6 +108,6 @@ def losing_trial(image, question):
 
 @pytest.fixture
 def challenge(user, question, trial, losing_trial):
-    challenge = ChallengeFactory(judge=user, question=question, winner=trial,
-                                 loser=losing_trial).save()
+    challenge = ChallengeFactory(judge=user, question=question).save()
+    challenge.update(winner_id=trial.id, loser_id=losing_trial.id)
     yield challenge
