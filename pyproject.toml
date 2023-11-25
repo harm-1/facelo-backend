@@ -10,3 +10,31 @@ column_limit = 79
 
 [tool.isort]
 skip = "facelo/app.py"
+
+[tool.poetry]
+name = "facelo"
+version = "0.1.0"
+description = ""
+authors = ["Harm van Eekeren <harmvaneekeren@gmail.com>"]
+# readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4"
+flask = "*"
+flask-sqlalchemy = "*"
+flask-cors = "*"
+python-dotenv = "*"
+flask-bcrypt = "*"
+flask-jwt-extended = "*"
+flask-migrate = "*"
+flask-apispec = "*"
+mysqlclient = "*"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "*"
+factory_boy = "*"
+flake8 = "*"
+isort = "*"
+monkeytype = "*"
+setuptools = "*"
+wheel = "*"

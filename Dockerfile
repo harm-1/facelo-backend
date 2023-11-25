@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
 # ================================= BUILDER =================================
 FROM base AS builder
 
-RUN pip install pipenv
+RUN pip install pipenv poetry
 
 
 # ================================= DEVELOPMENT ================================
