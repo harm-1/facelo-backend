@@ -30,6 +30,8 @@ RUN poetry install
 # ================================= DEVELOPMENT ================================
 FROM builder AS development
 
+RUN poetry install --extras "dev"
+
 # I do this to be able to run pytest in emacs
 RUN mkdir -p /home/harm/projects/facelo
 RUN ln -s /facelo/backend /home/harm/projects/facelo
